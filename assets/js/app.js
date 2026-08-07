@@ -1,11 +1,31 @@
-// Ideiglenes karbantartási mód: nyilvános környezetben minden aloldal a főoldalra irányít.
+// Ideiglenes karbantartási mód.
+// A publikus látogatók csak a maintenance oldalt látják.
+// A rejtett preview.html megnyitása az adott böngészőfülre engedélyezi az előnézetet.
 (function () {
   const localHosts = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
   const isLocal = localHosts.has(window.location.hostname);
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const isPreviewEntry = path.endsWith("/preview.html") || path === "/preview.html";
+
+  if (isPreviewEntry) {
+    try { sessionStorage.setItem("fehervital_preview", "1"); } catch (_) {}
+  }
+
+  let previewActive = false;
+  try { previewActive = sessionStorage.getItem("fehervital_preview") === "1"; } catch (_) {}
+
   const isMaintenancePage = path === "/" || path.endsWith("/index.html");
-  if (!isLocal && !isMaintenancePage) {
+  if (!isLocal && !previewActive && !isMaintenancePage) {
     window.location.replace("/");
+    return;
+  }
+
+  if (previewActive) {
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('a[href="index.html"], a[href="/"]').forEach((link) => {
+        link.setAttribute("href", "preview.html");
+      });
+    });
   }
 })();
 
