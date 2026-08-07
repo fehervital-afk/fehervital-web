@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "last_refresh": "2026-08-07T19:39:51.415211+00:00",
+  "system_health": 22,
+  "components": {
+    "seo": 35,
+    "content": 14,
+    "marketing": 17,
+    "conversion": 30,
+    "technical": 30,
+    "automation": 45,
+    "agents": 100
+  },
+  "alerts": [
+    "10 közepes audit probléma."
+  ],
+  "next_action": "Hiányzó SEO mezők kitöltése",
+  "metrics": {
+    "active_tasks": 5,
+    "ready_execution": 0,
+    "drafts": 1,
+    "agents_enabled": 7,
+    "agents_total": 7
+  },
+  "timeline": [
+    {
+      "time": "2026-08-07T19:28:49.215593+00:00",
+      "event": "ceo_run",
+      "health_score": 0,
+      "decisions": 5
+    },
+    {
+      "time": "2026-08-07T19:39:48.427630+00:00",
+      "event": "ceo_run",
+      "health_score": 22,
+      "components": {
+        "seo": 35,
+        "content": 14,
+        "marketing": 17,
+        "conversion": 30,
+        "technical": 30,
+        "automation": 45,
+        "agents": 100
+      },
+      "decisions": 5
+    }
+  ]
+}

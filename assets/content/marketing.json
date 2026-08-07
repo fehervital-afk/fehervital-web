@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "enabled": false,
+  "mode": "recommend",
+  "goal": "A Fehérvitál weboldal organikus láthatóságának és időpontfoglalási konverziójának növelése.",
+  "target_audience": "40+ érdeklődők, akik wellness célú, tájékoztató állapotfelmérést és kapcsolódó technológiákat keresnek.",
+  "content_cadence": "weekly",
+  "last_run": "2026-08-07T18:16:03.670794+00:00",
+  "scores": {
+    "seo": 0,
+    "content": 14,
+    "conversion": 30,
+    "technical": 30,
+    "overall": 17
+  },
+  "summary": "Marketing állapot: 17/100. SEO: 0, tartalom: 14, konverzió: 30, technikai állapot: 30.",
+  "recommendations": [
+    {
+      "id": "rec-1",
+      "priority": "high",
+      "category": "SEO",
+      "title": "Hiányzó SEO mezők kitöltése",
+      "reason": "5 oldal SEO címe vagy meta leírása hiányos.",
+      "task_prompt": "Ellenőrizd az összes oldalt, és készíts jogilag óvatos, magyar SEO címet és meta leírást a hiányos oldalakhoz. Ne módosíts semmit jóváhagyás nélkül.",
+      "status": "new"
+    },
+    {
+      "id": "rec-2",
+      "priority": "high",
+      "category": "Konverzió",
+      "title": "Erősebb időpontfoglalási útvonal",
+      "reason": "Kevés strukturált CTA blokk található.",
+      "task_prompt": "Javasolj a főoldalra és a legfontosabb szolgáltatási oldalakra rövid időpontfoglalási CTA blokkokat a Recepciós AI foglalási linkjére. Ne módosíts semmit jóváhagyás nélkül.",
+      "status": "new"
+    },
+    {
+      "id": "rec-3",
+      "priority": "medium",
+      "category": "Tartalom",
+      "title": "Tartalmi mélység növelése",
+      "reason": "A teljes weboldal szövegmennyisége még kevés a szélesebb organikus lefedettséghez.",
+      "task_prompt": "Készíts tartalombővítési tervet a Fehérvitál számára: biorezonanciás állapotfelmérés, HarmonyScan, wellness technológiák és gyakori kérdések témában. Kerüld az orvosi ígéreteket.",
+      "status": "new"
+    },
+    {
+      "id": "rec-4",
+      "priority": "medium",
+      "category": "Tartalom",
+      "title": "GYIK bővítése",
+      "reason": "Kevés strukturált GYIK elem található.",
+      "task_prompt": "Javasolj legalább 6 közérthető GYIK kérdés-választ a látogatók tipikus kérdéseire, wellness és tájékoztató megfogalmazással.",
+      "status": "new"
+    },
+    {
+      "id": "rec-5",
+      "priority": "high",
+      "category": "Technikai",
+      "title": "Audit hibák rendezése",
+      "reason": "Az audit 0 magas és 10 közepes súlyú problémát talált.",
+      "task_prompt": "Vizsgáld át az aktuális AI audit hibáit, és készíts biztonságos javítási tervet. Ne törölj tartalmat, és ne módosíts kapcsolati adatot jóváhagyás nélkül.",
+      "status": "new"
+    }
+  ],
+  "weekly_plan": [
+    {
+      "day": "Hétfő",
+      "task": "SEO és technikai audit áttekintése",
+      "type": "audit"
+    },
+    {
+      "day": "Kedd",
+      "task": "Egy edukációs tartalom vagy GYIK frissítése",
+      "type": "content"
+    },
+    {
+      "day": "Szerda",
+      "task": "Főoldali CTA és foglalási útvonal ellenőrzése",
+      "type": "conversion"
+    },
+    {
+      "day": "Csütörtök",
+      "task": "Belső linkelés és kapcsolódó oldalak áttekintése",
+      "type": "seo"
+    },
+    {
+      "day": "Péntek",
+      "task": "Következő heti tartalomötletek előkészítése",
+      "type": "planning"
+    }
+  ],
+  "history": [
+    {
+      "time": "2026-08-07T17:41:29.506379+00:00",
+      "overall": 17,
+      "seo": 0,
+      "content": 14,
+      "conversion": 30,
+      "technical": 30
+    },
+    {
+      "time": "2026-08-07T18:16:03.670794+00:00",
+      "overall": 17,
+      "seo": 0,
+      "content": 14,
+      "conversion": 30,
+      "technical": 30
+    }
+  ],
+  "stats": {
+    "pages": 5,
+    "words": 345,
+    "cta_blocks": 0,
+    "faq_blocks": 0,
+    "audit_high": 0,
+    "audit_medium": 10,
+    "audit_low": 0
+  }
+}

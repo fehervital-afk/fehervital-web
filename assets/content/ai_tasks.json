@@ -1,0 +1,65 @@
+{
+  "version": 2,
+  "tasks": [
+    {
+      "id": "4549c24e-c75b-48dc-a5b5-202c396270ae",
+      "prompt": "Ellenőrizd az összes oldalt, és készíts jogilag óvatos, magyar SEO címet és meta leírást a hiányos oldalakhoz. Ne módosíts semmit jóváhagyás nélkül.",
+      "status": "pending",
+      "priority": "high",
+      "category": "ceo",
+      "impact": "AI Cégvezető által kijelölt üzleti prioritás",
+      "reason": "5 oldal SEO címe vagy meta leírása hiányos.",
+      "owner": "AI Marketing",
+      "source": "ai_ceo",
+      "created_at": "2026-08-07T19:28:49.215836+00:00"
+    },
+    {
+      "id": "4281203f-aa7f-49a4-a263-aafe8ecd77fb",
+      "prompt": "Javasolj a főoldalra és a legfontosabb szolgáltatási oldalakra rövid időpontfoglalási CTA blokkokat a Recepciós AI foglalási linkjére. Ne módosíts semmit jóváhagyás nélkül.",
+      "status": "pending",
+      "priority": "high",
+      "category": "ceo",
+      "impact": "AI Cégvezető által kijelölt üzleti prioritás",
+      "reason": "Kevés strukturált CTA blokk található.",
+      "owner": "AI Marketing",
+      "source": "ai_ceo",
+      "created_at": "2026-08-07T19:28:49.215849+00:00"
+    },
+    {
+      "id": "014d091c-0390-4d7e-b79b-42de97eb1a4a",
+      "prompt": "Készíts tartalombővítési tervet a Fehérvitál számára: biorezonanciás állapotfelmérés, HarmonyScan, wellness technológiák és gyakori kérdések témában. Kerüld az orvosi ígéreteket.",
+      "status": "pending",
+      "priority": "medium",
+      "category": "ceo",
+      "impact": "AI Cégvezető által kijelölt üzleti prioritás",
+      "reason": "A teljes weboldal szövegmennyisége még kevés a szélesebb organikus lefedettséghez.",
+      "owner": "AI Marketing",
+      "source": "ai_ceo",
+      "created_at": "2026-08-07T19:28:49.215856+00:00"
+    },
+    {
+      "id": "3d9ec0d9-4871-4e76-9794-f05de64b3d6f",
+      "prompt": "Javasolj legalább 6 közérthető GYIK kérdés-választ a látogatók tipikus kérdéseire, wellness és tájékoztató megfogalmazással.",
+      "status": "pending",
+      "priority": "medium",
+      "category": "ceo",
+      "impact": "AI Cégvezető által kijelölt üzleti prioritás",
+      "reason": "Kevés strukturált GYIK elem található.",
+      "owner": "AI Marketing",
+      "source": "ai_ceo",
+      "created_at": "2026-08-07T19:28:49.215861+00:00"
+    },
+    {
+      "id": "eca7649f-3cc2-43ee-ad61-5291883108ba",
+      "prompt": "Vizsgáld át az aktuális AI audit hibáit, és készíts biztonságos javítási tervet. Ne törölj tartalmat, és ne módosíts kapcsolati adatot jóváhagyás nélkül.",
+      "status": "pending",
+      "priority": "high",
+      "category": "ceo",
+      "impact": "AI Cégvezető által kijelölt üzleti prioritás",
+      "reason": "Az audit 0 magas és 10 közepes súlyú problémát talált.",
+      "owner": "AI Marketing",
+      "source": "ai_ceo",
+      "created_at": "2026-08-07T19:28:49.215865+00:00"
+    }
+  ]
+}

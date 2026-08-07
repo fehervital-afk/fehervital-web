@@ -1,0 +1,1738 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fehérvitál Web Admin V17</title>
+<style>
+:root{--p:#2f7a57;--pd:#225f43;--bg:#f4f8f5;--card:#fff;--line:#dce9e1;--text:#173126;--muted:#607067;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+header{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}header strong{font-size:1.18rem;color:var(--p)}
+main{width:min(1240px,calc(100% - 28px));margin:26px auto 80px}.grid{display:grid;grid-template-columns:260px 1fr;gap:22px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 10px 30px rgba(23,49,38,.06)}
+button,.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer;background:var(--p);color:#fff;text-decoration:none;display:inline-block}.secondary{background:#fff;color:var(--p);border:1px solid var(--p)}.danger{background:#fff;color:var(--danger);border:1px solid #f3b4ae}.muted-btn{background:#f5f7f5;color:#496057;border:1px solid #dce9e1}.top-actions,.toolbar,.block-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pages button{width:100%;text-align:left;margin:4px 0;background:#fff;color:var(--text);border:1px solid var(--line)}.pages button.active{background:#e9f5ee;border-color:var(--p);color:var(--pd)}
+label{display:block;font-weight:700;margin:10px 0 6px}input,textarea,select{width:100%;border:1px solid #cbd9d0;border-radius:10px;padding:10px;font:inherit;background:#fff}textarea{min-height:130px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.hint{color:var(--muted);font-size:.9rem}.status{padding:10px 14px;border-radius:10px;background:#e9f5ee;color:var(--pd);display:none;margin-bottom:16px}.status.show{display:block}.status.err{background:#fff0ee;color:var(--danger)}
+.page-settings{background:#f8fbf9;border:1px solid var(--line);padding:14px;border-radius:14px;margin-bottom:16px}.block{border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;background:#fff}.block.hidden-block{opacity:.6}.block-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}.block-actions button{padding:6px 9px;font-size:.84rem}.badge{font-size:.78rem;padding:4px 8px;border-radius:999px;background:#e9f5ee;color:var(--pd)}.empty{border:1px dashed #b9cec1;border-radius:14px;padding:30px;text-align:center;color:var(--muted)}.checkline{display:flex;gap:8px;align-items:center;font-weight:600}.checkline input{width:auto}.preview img,.preview video{max-width:320px;max-height:200px;border-radius:10px;margin-top:10px}.preview iframe{width:320px;max-width:100%;aspect-ratio:16/9;border:0;border-radius:10px;margin-top:10px}.drop{border:2px dashed #b9cec1;border-radius:12px;padding:16px;text-align:center;background:#fafcfb}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}.tab{background:transparent;color:var(--muted);border-radius:8px 8px 0 0}.tab.active{background:#e9f5ee;color:var(--pd)}.tabpane{display:none}.tabpane.active{display:block}.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.media-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}.media-thumb{aspect-ratio:16/10;border-radius:8px;background:#eef4f0;overflow:hidden;display:grid;place-items:center}.media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover}.media-card small{display:block;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:7px 0}.backup-list{display:grid;gap:8px}.backup-row{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px}.faq-item{border:1px solid var(--line);padding:10px;border-radius:10px;margin:8px 0}hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}.row,.row3{grid-template-columns:1fr}}
+
+.media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.media-card{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+.media-thumb{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px;background:#f2f4f2}
+.media-video{width:100%;aspect-ratio:1/1;border-radius:9px;background:#111}
+.media-meta{font-size:.78rem;color:var(--muted);word-break:break-all;margin:7px 0}
+.media-card .block-actions{margin-top:8px}
+.site-box{background:#f8fbf9;border:1px solid var(--line);padding:16px;border-radius:14px;margin:14px 0}
+.gallery-editor{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gallery-edit-item{border:1px solid var(--line);border-radius:12px;padding:10px}
+.gallery-edit-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px}
+@media(max-width:900px){.media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-editor{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.media-grid,.gallery-editor{grid-template-columns:1fr}}
+
+/* V7 Visual Builder */
+.v7-builder{display:grid;grid-template-columns:210px minmax(0,1fr) 280px;gap:14px;min-height:680px}
+.v7-pane{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;overflow:auto}
+.v7-palette-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;background:#f9fbfa;cursor:grab;font-weight:750}
+.v7-canvas{display:flex;flex-direction:column;gap:10px}
+.v7-block-card{border:2px solid transparent;border-radius:12px;background:#fff;padding:12px;box-shadow:0 3px 12px rgba(0,0,0,.05);cursor:pointer}
+.v7-block-card.selected{border-color:var(--p)}
+.v7-block-card.dragging{opacity:.45}
+.v7-block-card .mini{font-size:.82rem;color:var(--muted)}
+.v7-preview-wrap{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.v7-preview-toolbar{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:#f7faf8}
+.v7-preview{width:100%;height:560px;border:0;background:#fff}
+.v7-inspector .hint{margin-top:0}
+.v7-empty{border:2px dashed #b9cec1;border-radius:12px;padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:1050px){.v7-builder{grid-template-columns:1fr}.v7-preview{height:460px}}
+
+/* V8 AI Webmaster */
+.ai8-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:16px}
+.ai8-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.ai8-command{min-height:150px;font-size:1.02rem}
+.ai8-task{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;background:#fbfdfc}
+.ai8-status{display:inline-block;border-radius:999px;padding:3px 8px;font-size:.76rem;font-weight:800;background:#eef5f0}
+.ai8-audit-item{border-left:3px solid #6e8e79;padding:8px 10px;margin:8px 0;background:#f8fbf9}
+@media(max-width:900px){.ai8-grid{grid-template-columns:1fr}}
+
+/* V9 AI approval */
+.ai9-plan{margin-top:10px;padding:10px;border-radius:10px;background:#f5f8f6;border:1px solid var(--line)}
+.ai9-plan summary{cursor:pointer;font-weight:800}
+.ai9-change{padding:7px 0;border-bottom:1px dashed var(--line);font-size:.86rem}
+.ai9-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ai9-risk-low{color:#28734d}.ai9-risk-medium{color:#9a6b00}.ai9-risk-high{color:#a23a3a}
+.ai9-log{padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+
+/* V10 AI Marketing */
+.m10-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:16px}
+.m10-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.m10-scores{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0 18px}
+.m10-score{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:#f9fbfa}
+.m10-score strong{display:block;font-size:1.65rem}
+.m10-rec{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fbfdfc}
+.m10-rec-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.m10-priority-high{color:#9d3131;font-weight:800}.m10-priority-medium{color:#916600;font-weight:800}.m10-priority-low{color:#28734d;font-weight:800}
+.m10-week{display:grid;gap:8px}.m10-day{padding:9px 10px;border-left:3px solid var(--p);background:#f7faf8;border-radius:8px}
+.m10-history{display:flex;gap:5px;align-items:end;height:90px;padding:8px 0}
+.m10-bar{flex:1;min-width:7px;background:#d9e8df;border-radius:5px 5px 0 0}
+@media(max-width:1000px){.m10-grid{grid-template-columns:1fr}.m10-scores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V11 AI Task Center */
+.t11-grid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px}
+.t11-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.t11-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.t11-stat{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;background:#f9fbfa}
+.t11-stat strong{display:block;font-size:1.4rem}
+.t11-task{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fbfdfc}
+.t11-task-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.t11-badges{display:flex;gap:6px;flex-wrap:wrap}
+.t11-badge{font-size:.74rem;border-radius:999px;padding:3px 8px;background:#edf3ef;font-weight:800}
+.t11-priority-high{background:#fdecec;color:#9d3131}.t11-priority-medium{background:#fff5dc;color:#8a6200}.t11-priority-low{background:#eaf6ef;color:#28734d}
+.t11-filter button{width:100%;margin:4px 0;text-align:left}
+.t11-meta{font-size:.82rem;color:var(--muted);margin-top:6px}
+.t11-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.t11-form textarea{min-height:120px}
+@media(max-width:900px){.t11-grid{grid-template-columns:1fr}.t11-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* V12 AI Executor */
+.e12-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:16px}
+.e12-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.e12-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fbfdfc}
+.e12-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.e12-risk{border-radius:999px;padding:3px 8px;font-size:.75rem;font-weight:800;background:#edf3ef}
+.e12-risk-high{background:#fdecec;color:#9d3131}.e12-risk-medium{background:#fff5dc;color:#8a6200}.e12-risk-low{background:#eaf6ef;color:#28734d}
+.e12-diff{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.e12-pane{border:1px solid var(--line);border-radius:10px;padding:10px;max-height:340px;overflow:auto;background:#fff}
+.e12-pane pre{white-space:pre-wrap;font-size:.78rem;margin:0}
+.e12-old{background:#fff5f5}.e12-new{background:#f4fbf6}
+.e12-history{padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+@media(max-width:950px){.e12-grid{grid-template-columns:1fr}.e12-diff{grid-template-columns:1fr}}
+
+/* V13 AI Autopilot */
+.a13-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px}
+.a13-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.a13-status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.a13-stat{background:#f9fbfa;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.a13-stat strong{display:block;font-size:1.4rem}
+.a13-history{padding:9px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.a13-ok{color:#28734d;font-weight:800}.a13-error{color:#9d3131;font-weight:800}.a13-warn{color:#8a6200;font-weight:800}
+@media(max-width:900px){.a13-grid{grid-template-columns:1fr}.a13-status{grid-template-columns:repeat(2,1fr)}}
+
+/* V14 AI Content + Agents */
+.c14-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:16px}
+.c14-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.c14-draft{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fbfdfc}
+.c14-pre{white-space:pre-wrap;background:#f7faf8;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:360px;overflow:auto;font-size:.82rem}
+.ag14-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ag14-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfdfc}
+@media(max-width:900px){.c14-grid{grid-template-columns:1fr}.ag14-grid{grid-template-columns:1fr}}
+
+/* V15 AI CEO */
+.ceo15-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px}
+.ceo15-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.ceo15-score{font-size:2.2rem;font-weight:900}
+.ceo15-decision{border:1px solid var(--line);border-radius:12px;padding:12px;margin:9px 0;background:#fbfdfc}
+.ceo15-owner{font-size:.78rem;border-radius:999px;padding:3px 8px;background:#edf3ef;font-weight:800}
+.ceo15-history{padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+@media(max-width:900px){.ceo15-grid{grid-template-columns:1fr}}
+
+/* V16 AI Business OS */
+.bos16-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px}
+.bos16-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.bos16-score{font-size:2.3rem;font-weight:900}
+.bos16-components{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bos16-component{background:#f9fbfa;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.bos16-component strong{display:block;font-size:1.45rem}
+.bos16-alert{padding:9px 10px;border-left:3px solid #9d3131;background:#fff6f6;border-radius:8px;margin:7px 0}
+.bos16-memory{padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+@media(max-width:900px){.bos16-grid{grid-template-columns:1fr}.bos16-components{grid-template-columns:repeat(2,1fr)}}
+
+/* V17 Business Intelligence */
+.bi17-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:16px}
+.bi17-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.bi17-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.bi17-kpi{border:1px solid var(--line);border-radius:12px;padding:11px;text-align:center;background:#f9fbfa}
+.bi17-kpi strong{display:block;font-size:1.45rem}
+.bi17-risk,.bi17-op{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0}
+.bi17-risk{background:#fff7f7}.bi17-op{background:#f4fbf6}
+.bi17-agent{padding:8px 0;border-bottom:1px solid var(--line)}
+.bi17-goal{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0}
+.bi17-progress{height:9px;background:#e8efea;border-radius:999px;overflow:hidden;margin-top:7px}
+.bi17-progress>span{display:block;height:100%;background:#2f6f4e}
+.bi17-bars{display:flex;gap:5px;height:100px;align-items:end;padding:8px 0}
+.bi17-bar{flex:1;min-width:7px;background:#cfe2d6;border-radius:5px 5px 0 0}
+@media(max-width:1000px){.bi17-grid{grid-template-columns:1fr}.bi17-kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header><strong>Fehérvitál Web Admin V17</strong><div class="top-actions"><button id="saveBtn">Mentés</button><button id="publishBtn" class="secondary">Mentés + Közzététel</button><button id="previewBtn" class="muted-btn">Előnézet</button><a class="btn secondary" href="/" target="_blank">Weboldal</a></div></header>
+<main><div id="status" class="status"></div><div class="grid"><aside class="panel"><h2>Oldalak</h2><div id="pages" class="pages"></div><hr><button id="mediaTabBtn" class="secondary" style="width:100%">Médiatár</button><button id="backupTabBtn" class="muted-btn" style="width:100%;margin-top:8px">Biztonsági mentések</button><hr><p class="hint"><b>Mentés:</b> helyben ment és automatikus biztonsági másolatot készít.</p><p class="hint"><b>Közzététel:</b> GitHub push → Render automatikus frissítés.</p></aside>
+<section class="panel">
+  <div id="siteMediaSettings" class="site-box" hidden>
+    <h2>Weboldal média beállítások</h2>
+    <div class="row">
+      <div>
+        <label>Márkanév</label>
+        <input id="siteLogoText" placeholder="Fehérvitál">
+      </div>
+      <div>
+        <label>Logókép</label>
+        <input id="siteLogoImage" placeholder="assets/uploads/...">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Favicon</label>
+        <input id="siteFavicon" placeholder="assets/uploads/...">
+      </div>
+      <div>
+        <label>Hero média típusa</label>
+        <select id="heroMediaType">
+          <option value="none">Nincs</option>
+          <option value="image">Kép</option>
+          <option value="video">Videó</option>
+        </select>
+      </div>
+    </div>
+    <label>Hero média fájl / URL</label>
+    <input id="heroMediaSrc" placeholder="assets/uploads/... vagy YouTube/Vimeo URL">
+    <label>Hero média alternatív szöveg</label>
+    <input id="heroMediaAlt">
+    <div class="toolbar">
+      <button id="chooseLogoBtn" class="secondary">Logó kiválasztása a médiatárból</button>
+      <button id="chooseFaviconBtn" class="secondary">Favicon kiválasztása</button>
+      <button id="chooseHeroBtn" class="secondary">Hero média kiválasztása</button>
+    </div>
+
+    <h3>Főoldali galéria</h3>
+    <p class="hint">A médiatárból kiválasztott képek jelennek meg a főoldali galériában.</p>
+    <div id="galleryEditor" class="gallery-editor"></div>
+  </div>
+
+  
+  <div id="designView" class="site-box" hidden>
+    <h2>Dizájn beállítások</h2>
+    <div class="row">
+      <div><label>Elsődleges szín</label><input id="designPrimary" type="color"></div>
+      <div><label>Másodlagos szín</label><input id="designSecondary" type="color"></div>
+    </div>
+    <div class="row">
+      <div><label>Háttér</label><input id="designBackground" type="color"></div>
+      <div><label>Betűszín</label><input id="designText" type="color"></div>
+    </div>
+    <div class="row">
+      <div><label>Betűtípus</label><select id="designFont"><option value="system">Modern / rendszer</option><option value="humanist">Humanista</option><option value="serif">Talpas / elegáns</option></select></div>
+      <div><label>Lekerekítés</label><input id="designRadius" type="number" min="0" max="40"></div>
+    </div>
+    <label>Árnyék</label>
+    <select id="designShadow"><option value="none">Nincs</option><option value="soft">Lágy</option><option value="strong">Erős</option></select>
+  </div>
+
+  <div id="contactView" class="site-box" hidden>
+    <h2>Kapcsolati adatok</h2>
+    <div class="row">
+      <div><label>Telefon</label><input id="contactPhone"></div>
+      <div><label>E-mail</label><input id="contactEmail"></div>
+    </div>
+    <label>Cím</label><input id="contactAddress">
+    <label>Nyitvatartás</label><textarea id="contactHours" style="min-height:90px"></textarea>
+    <label>Google Térkép / Maps URL</label><input id="contactMap">
+    <div class="row">
+      <div><label>Facebook</label><input id="contactFacebook"></div>
+      <div><label>Instagram</label><input id="contactInstagram"></div>
+    </div>
+    <div class="row">
+      <div><label>TikTok</label><input id="contactTiktok"></div>
+      <div><label>YouTube</label><input id="contactYoutube"></div>
+    </div>
+  </div>
+
+  <div id="seoView" class="site-box" hidden>
+    <h2>SEO – aktuális oldal</h2>
+    <label>SEO cím</label><input id="seoTitle">
+    <label>Meta leírás</label><textarea id="seoDescription" style="min-height:100px"></textarea>
+    <label>Kulcsszavak</label><input id="seoKeywords" placeholder="pl. biorezonancia, Székesfehérvár, wellness">
+    <label>Open Graph / Facebook kép</label><input id="seoOgImage" placeholder="assets/uploads/...">
+  </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <div id="biView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Business Intelligence</h1>
+        <p class="hint" style="margin:4px 0 0">KPI-k, trendek, kockázatok, lehetőségek, előrejelzések és stratégiai célok.</p>
+      </div>
+      <div class="block-actions">
+        <button id="bi17Refresh" class="primary">Intelligence frissítése</button>
+      </div>
+    </div>
+
+    <div class="bi17-kpis">
+      <div class="bi17-kpi"><span>Rendszer</span><strong id="bi17Health">–</strong></div>
+      <div class="bi17-kpi"><span>SEO</span><strong id="bi17Seo">–</strong></div>
+      <div class="bi17-kpi"><span>Tartalom</span><strong id="bi17Content">–</strong></div>
+      <div class="bi17-kpi"><span>Konverzió</span><strong id="bi17Conv">–</strong></div>
+      <div class="bi17-kpi"><span>Foglalási készség</span><strong id="bi17Booking">–</strong></div>
+    </div>
+
+    <div class="bi17-grid" style="margin-top:14px">
+      <section>
+        <div class="bi17-card">
+          <h2>30 napos előrejelzés</h2>
+          <div id="bi17Forecast"></div>
+          <div class="hint" style="margin-top:8px">Bizalmi index: <b id="bi17Confidence">–</b>. Ez az adatforrások teljességét jelzi, nem garantált üzleti eredményt.</div>
+        </div>
+
+        <div class="bi17-card" style="margin-top:14px">
+          <h2>Napi trend</h2>
+          <div id="bi17Trend" class="bi17-bars"></div>
+        </div>
+
+        <div class="bi17-card" style="margin-top:14px">
+          <h2>Kockázatok</h2>
+          <div id="bi17Risks"></div>
+          <h2 style="margin-top:20px">Lehetőségek</h2>
+          <div id="bi17Opps"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="bi17-card">
+          <h2>Stratégiai célok</h2>
+          <div id="bi17Goals"></div>
+        </div>
+
+        <div class="bi17-card" style="margin-top:14px">
+          <h2>AI ügynök teljesítmény</h2>
+          <div id="bi17Agents"></div>
+        </div>
+
+        <div class="bi17-card" style="margin-top:14px">
+          <h2>Operatív KPI-k</h2>
+          <div id="bi17Ops"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="bosView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Business Operating System</h1>
+        <p class="hint" style="margin:4px 0 0">Valós pontszámok, központi rendszerállapot, riasztások, üzleti memória és heti jelentés.</p>
+      </div>
+      <div class="block-actions">
+        <button id="bos16Refresh" class="primary">Business OS frissítése</button>
+        <button id="bos16Weekly" class="secondary">Heti vezetői jelentés</button>
+      </div>
+    </div>
+    <div class="bos16-grid">
+      <section>
+        <div class="bos16-card">
+          <div class="hint">Teljes rendszer egészségi pontszám</div>
+          <div id="bos16Health" class="bos16-score">–</div>
+          <h2>Összetevők</h2>
+          <div id="bos16Components" class="bos16-components"></div>
+        </div>
+        <div class="bos16-card" style="margin-top:14px">
+          <h2>Riasztások</h2>
+          <div id="bos16Alerts"></div>
+          <h2 style="margin-top:20px">Következő lépés</h2>
+          <div id="bos16Next" class="site-box">–</div>
+        </div>
+        <div class="bos16-card" style="margin-top:14px">
+          <h2>Heti vezetői jelentés</h2>
+          <pre id="bos16WeeklyText" class="c14-pre">Még nincs jelentés.</pre>
+        </div>
+      </section>
+      <aside>
+        <div class="bos16-card">
+          <h2>Rendszer mérőszámok</h2>
+          <div id="bos16Metrics"></div>
+        </div>
+        <div class="bos16-card" style="margin-top:14px">
+          <h2>AI üzleti memória</h2>
+          <label>Új tanulság / megfigyelés</label>
+          <textarea id="bos16MemoryText" style="min-height:90px"></textarea>
+          <label>Típus</label>
+          <select id="bos16MemoryBucket">
+            <option value="lessons">Tanulság</option>
+            <option value="wins">Siker</option>
+            <option value="experiments">Kísérlet</option>
+          </select>
+          <button id="bos16MemorySave" class="secondary" style="margin-top:10px">Memória mentése</button>
+          <div id="bos16MemoryList" style="margin-top:14px"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="ceoView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Cégvezető</h1>
+        <p class="hint" style="margin:4px 0 0">Központi üzleti célok, vezetői prioritások és AI ügynök feladatkiosztás.</p>
+      </div>
+      <div class="block-actions">
+        <button id="ceo15Run" class="primary">Vezetői ciklus futtatása</button>
+        <button id="ceo15Refresh" class="secondary">Frissítés</button>
+      </div>
+    </div>
+
+    <div class="ceo15-grid">
+      <section>
+        <div class="ceo15-card">
+          <div class="hint">Rendszer egészségi pontszám</div>
+          <div id="ceo15Health" class="ceo15-score">–</div>
+          <h2>Vezetői összefoglaló</h2>
+          <p id="ceo15Summary" class="hint">Még nincs vezetői ciklus.</p>
+        </div>
+
+        <div class="ceo15-card" style="margin-top:14px">
+          <h2>Aktuális döntések</h2>
+          <div id="ceo15Decisions"></div>
+        </div>
+
+        <div class="ceo15-card" style="margin-top:14px">
+          <h2>Vezetői napló</h2>
+          <div id="ceo15History"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="ceo15-card">
+          <h2>Vezetői beállítások</h2>
+          <label class="checkline"><input id="ceo15Enabled" type="checkbox"> AI Cégvezető engedélyezve</label>
+          <label>Mód</label>
+          <select id="ceo15Mode"><option value="approval">Jóváhagyásos</option><option value="safe_auto">Biztonságos automata</option></select>
+          <label>Elsődleges üzleti cél</label>
+          <textarea id="ceo15Goal" style="min-height:110px"></textarea>
+          <button id="ceo15Save" class="secondary" style="margin-top:10px">Beállítások mentése</button>
+        </div>
+
+        <div class="ceo15-card" style="margin-top:14px">
+          <h2>AI csapat feladatkiosztása</h2>
+          <div id="ceo15Assignments"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="agentsView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Ügynökök</h1>
+        <p class="hint" style="margin:4px 0 0">Specializált AI szerepkörök egy közös munkafolyamatban.</p>
+      </div>
+      <button id="ag14Refresh" class="secondary">Frissítés</button>
+    </div>
+    <div class="c14-card">
+      <label>Orchestration mód</label>
+      <select id="ag14Mode">
+        <option value="approval">Jóváhagyásos</option>
+        <option value="safe_auto">Biztonságos automata</option>
+      </select>
+      <div id="ag14Agents" class="ag14-grid" style="margin-top:14px"></div>
+      <button id="ag14Save" class="secondary" style="margin-top:14px">Ügynök beállítások mentése</button>
+    </div>
+  </div>
+
+  <div id="contentGenView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Tartalomgenerátor</h1>
+        <p class="hint" style="margin:4px 0 0">Webszöveg, SEO, GYIK, social és vizuális brief készítése márkamemóriával.</p>
+      </div>
+      <button id="c14Refresh" class="secondary">Frissítés</button>
+    </div>
+
+    <div class="c14-grid">
+      <section class="c14-card">
+        <h2>Új tartalom készítése</h2>
+        <label>Tartalomtípus</label>
+        <select id="c14Kind">
+          <option value="article">Weboldal / cikk</option>
+          <option value="seo">SEO csomag</option>
+          <option value="faq">GYIK</option>
+          <option value="social">Social média csomag</option>
+          <option value="image_prompt">Képgeneráló prompt</option>
+        </select>
+        <label>Téma</label>
+        <input id="c14Topic" placeholder="Példa: biorezonanciás állapotfelmérés">
+        <label>Kapcsolódó oldal</label>
+        <select id="c14Page"><option value="">Nincs konkrét oldal</option></select>
+        <button id="c14Generate" class="primary" style="margin-top:10px">AI tartalom generálása</button>
+
+        <h2 style="margin-top:22px">Draftok</h2>
+        <div id="c14Drafts"></div>
+      </section>
+
+      <aside class="c14-card">
+        <h2>AI Márkamemória</h2>
+        <label>Márkanév</label><input id="c14Brand">
+        <label>Hangnem</label><textarea id="c14Tone"></textarea>
+        <label>Célközönség</label><textarea id="c14Audience"></textarea>
+        <label>Kötelező elemek (soronként)</label><textarea id="c14Must"></textarea>
+        <label>Kerülendő kifejezések / állítások (soronként)</label><textarea id="c14Avoid"></textarea>
+        <button id="c14SaveMemory" class="secondary" style="margin-top:10px">Márkamemória mentése</button>
+      </aside>
+    </div>
+  </div>
+
+  <div id="autopilotView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Autopilot</h1>
+        <p class="hint" style="margin:4px 0 0">Automatikus audit, szinkronizálás, alacsony kockázatú végrehajtás és önellenőrzés.</p>
+      </div>
+      <div class="block-actions">
+        <button id="a13Run" class="primary">Autopilot futtatása most</button>
+        <button id="a13Refresh" class="secondary">Frissítés</button>
+      </div>
+    </div>
+
+    <div class="a13-status">
+      <div class="a13-stat"><span>Futások</span><strong id="a13Runs">0</strong></div>
+      <div class="a13-stat"><span>Szinkronizált</span><strong id="a13Synced">0</strong></div>
+      <div class="a13-stat"><span>Automatikusan alkalmazott</span><strong id="a13Applied">0</strong></div>
+      <div class="a13-stat"><span>Rollback</span><strong id="a13Rollback">0</strong></div>
+    </div>
+
+    <div class="a13-grid">
+      <section class="a13-card">
+        <h2>Autopilot állapot</h2>
+        <div id="a13LastResult" class="site-box">Még nem futott.</div>
+
+        <h2 style="margin-top:22px">Műveleti napló</h2>
+        <div id="a13History"></div>
+      </section>
+
+      <aside class="a13-card">
+        <h2>Automatizálási szabályok</h2>
+        <label class="checkline"><input id="a13Enabled" type="checkbox"> AI Autopilot engedélyezve</label>
+        <label>Mód</label>
+        <select id="a13Mode">
+          <option value="observe">Megfigyelés – csak audit és szinkronizálás</option>
+          <option value="safe_auto">Biztonságos automata – csak low risk</option>
+        </select>
+        <label class="checkline"><input id="a13AutoLow" type="checkbox"> Low risk módosítás automatikus alkalmazása</label>
+        <label class="checkline"><input id="a13RollbackDrop" type="checkbox"> Automatikus rollback pontszámromlásnál</label>
+        <label>Megengedett pontszámromlás</label>
+        <input id="a13MaxDrop" type="number" min="0" max="20" step="1">
+        <label>Ellenőrzési gyakoriság (perc)</label>
+        <input id="a13Interval" type="number" min="60" step="60">
+        <button id="a13Save" class="secondary" style="margin-top:10px">Autopilot beállítások mentése</button>
+
+        <div class="site-box" style="margin-top:14px">
+          <strong>Távoli 24/7 működés</strong>
+          <p class="hint">GitHub Actions óránként futtathatja az Autopilotot. Ehhez később a repositoryban az <code>AI_AUTOPILOT_ENABLED=true</code> változót kapcsoljuk be.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="executorView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Végrehajtó Motor</h1>
+        <p class="hint" style="margin:4px 0 0">AI módosítások előnézete, diffje, jóváhagyása és visszaállítása.</p>
+      </div>
+      <div class="block-actions">
+        <button id="e12Sync" class="primary">Feladatok szinkronizálása</button>
+        <button id="e12Refresh" class="secondary">Frissítés</button>
+      </div>
+    </div>
+
+    <div class="e12-grid">
+      <section class="e12-card">
+        <h2>Végrehajtási sor</h2>
+        <div id="e12Items"></div>
+      </section>
+
+      <aside>
+        <div class="e12-card">
+          <h2>Automata mód</h2>
+          <label class="checkline"><input id="e12Enabled" type="checkbox"> AI Végrehajtó engedélyezve</label>
+          <label class="checkline"><input id="e12AutoMode" type="checkbox"> Teljes automata mód</label>
+          <label class="checkline"><input id="e12AutoLow" type="checkbox"> Alacsony kockázat automatikus alkalmazása</label>
+          <label class="checkline"><input id="e12Backup" type="checkbox"> Biztonsági mentés alkalmazás előtt</label>
+          <button id="e12SaveSettings" class="secondary" style="margin-top:10px">Beállítások mentése</button>
+          <div class="site-box" style="margin-top:14px">
+            <strong>Biztonsági szabály</strong>
+            <p class="hint">A V12 helyben már képes alkalmazni és visszaállítani strukturált módosításokat. A GitHub/Render automatikus publikálást külön lépcsőben kapcsoljuk rá.</p>
+          </div>
+        </div>
+
+        <div class="e12-card" style="margin-top:14px">
+          <h2>Végrehajtási napló</h2>
+          <div id="e12History"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="taskCenterView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Feladatkezelő</h1>
+        <p class="hint" style="margin:4px 0 0">Az összes AI modul közös feladatközpontja.</p>
+      </div>
+      <div class="block-actions">
+        <button id="t11Refresh" class="secondary">Frissítés</button>
+        <button id="t11New" class="primary">+ Új feladat</button>
+      </div>
+    </div>
+
+    <div class="t11-stats">
+      <div class="t11-stat"><span>Összes</span><strong id="t11AllCount">0</strong></div>
+      <div class="t11-stat"><span>Új</span><strong id="t11NewCount">0</strong></div>
+      <div class="t11-stat"><span>Folyamatban</span><strong id="t11DoingCount">0</strong></div>
+      <div class="t11-stat"><span>Kész</span><strong id="t11DoneCount">0</strong></div>
+    </div>
+
+    <div class="t11-grid">
+      <aside class="t11-card t11-filter">
+        <h3>Szűrés</h3>
+        <button class="secondary" data-t11-filter="all">Minden feladat</button>
+        <button class="secondary" data-t11-filter="pending">Új / függőben</button>
+        <button class="secondary" data-t11-filter="waiting_approval">Jóváhagyásra vár</button>
+        <button class="secondary" data-t11-filter="in_progress">Folyamatban</button>
+        <button class="secondary" data-t11-filter="applied">Kész / alkalmazva</button>
+        <button class="secondary" data-t11-filter="rejected">Elutasítva</button>
+
+        <h3 style="margin-top:18px">Prioritás</h3>
+        <button class="secondary" data-t11-priority="high">High</button>
+        <button class="secondary" data-t11-priority="medium">Medium</button>
+        <button class="secondary" data-t11-priority="low">Low</button>
+        <button class="secondary" data-t11-priority="all">Minden prioritás</button>
+
+        <div class="site-box" style="margin-top:18px">
+          <strong>Források</strong>
+          <p class="hint">AI Marketing, AI Webmester és kézi feladatok ugyanitt jelennek meg.</p>
+        </div>
+      </aside>
+
+      <section class="t11-card">
+        <div id="t11CreateBox" class="t11-form" hidden>
+          <h2>Új kézi AI feladat</h2>
+          <label>Feladat leírása</label>
+          <textarea id="t11Prompt" placeholder="Példa: Készíts SEO-javítási tervet a Biorezonancia oldalhoz."></textarea>
+          <div class="row">
+            <div><label>Prioritás</label><select id="t11Priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+            <div><label>Kategória</label><input id="t11Category" value="manual"></div>
+          </div>
+          <label>Miért fontos?</label><input id="t11Reason">
+          <label>Várható hatás</label><input id="t11Impact">
+          <div class="block-actions" style="margin-top:10px">
+            <button id="t11Create" class="primary">Feladat létrehozása</button>
+            <button id="t11CancelCreate" class="secondary">Mégse</button>
+          </div>
+        </div>
+
+        <h2>Feladatlista</h2>
+        <div id="t11Tasks"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="marketingView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Marketing Manager</h1>
+        <p class="hint" style="margin:4px 0 0">Marketing állapot, növekedési javaslatok és automatikus feladat-előkészítés.</p>
+      </div>
+      <div class="block-actions">
+        <button id="m10Analyze" class="primary">Marketing elemzés most</button>
+        <button id="m10Refresh" class="secondary">Frissítés</button>
+      </div>
+    </div>
+
+    <div class="m10-scores">
+      <div class="m10-score"><span>Összesített</span><strong id="m10Overall">–</strong></div>
+      <div class="m10-score"><span>SEO</span><strong id="m10Seo">–</strong></div>
+      <div class="m10-score"><span>Tartalom</span><strong id="m10Content">–</strong></div>
+      <div class="m10-score"><span>Konverzió</span><strong id="m10Conversion">–</strong></div>
+      <div class="m10-score"><span>Technikai</span><strong id="m10Technical">–</strong></div>
+    </div>
+
+    <div class="m10-grid">
+      <section class="m10-card">
+        <h2>AI vezetői összefoglaló</h2>
+        <p id="m10Summary" class="hint">Az első elemzés még nem futott le.</p>
+        <div id="m10Stats" class="hint"></div>
+
+        <h2 style="margin-top:22px">Növekedési javaslatok</h2>
+        <div id="m10Recommendations"></div>
+      </section>
+
+      <aside>
+        <div class="m10-card">
+          <h2>Automatizálás</h2>
+          <label class="checkline"><input id="m10Enabled" type="checkbox"> Távoli AI Marketing engedélyezve</label>
+          <label>Működés</label>
+          <select id="m10Mode"><option value="recommend">Csak javaslat</option><option value="queue_safe">Biztonságos feladat-előkészítés</option></select>
+          <label>Marketing cél</label>
+          <textarea id="m10Goal" style="min-height:90px"></textarea>
+          <label>Célközönség</label>
+          <textarea id="m10Audience" style="min-height:90px"></textarea>
+          <label>Tartalmi ritmus</label>
+          <select id="m10Cadence"><option value="weekly">Heti</option><option value="biweekly">Kétheti</option><option value="monthly">Havi</option></select>
+          <button id="m10Save" class="secondary" style="margin-top:10px">Marketing beállítások mentése</button>
+        </div>
+
+        <div class="m10-card" style="margin-top:14px">
+          <h2>Heti AI marketingterv</h2>
+          <div id="m10Weekly" class="m10-week"></div>
+        </div>
+
+        <div class="m10-card" style="margin-top:14px">
+          <h2>Pontszám trend</h2>
+          <div id="m10History" class="m10-history"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="aiWebmasterView" hidden>
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h1 style="margin:0">AI Webmester</h1>
+        <p class="hint" style="margin:4px 0 0">Mondd el természetes nyelven, mit szeretnél. A feladat bekerül az AI munkasorába.</p>
+      </div>
+      <button id="ai8Refresh" class="secondary">Állapot frissítése</button>
+    </div>
+
+    <div class="ai8-grid">
+      <section class="ai8-card">
+        <h2>Új AI feladat</h2>
+        <textarea id="ai8Command" class="ai8-command" placeholder="Példa: Készíts a főoldalra egy új HarmonyScan szekciót rövid, tájékoztató szöveggel, képpel és időpontfoglaló gombbal."></textarea>
+        <div class="toolbar">
+          <button id="ai8Queue" class="primary">Feladat hozzáadása</button>
+          <button id="ai8RunLocal" class="secondary">AI futtatása most</button>
+        </div>
+        <p class="hint">A távoli, számítógép nélküli automatizálást a GitHub Actions végzi. A helyi futtatáshoz OPENAI_API_KEY szükséges.</p>
+
+        <h2>Feladatsor</h2>
+        <div id="ai8Tasks"></div>
+      </section>
+
+      <aside class="ai8-card">
+        <h2>Automatizálás</h2>
+        <label class="checkline"><input id="ai8Enabled" type="checkbox"> Távoli AI Webmester engedélyezve</label>
+        <label>Működési mód</label>
+        <select id="ai8Mode">
+          <option value="approval">Jóváhagyásos</option>
+          <option value="safe_auto">Biztonságos automata</option>
+          <option value="full_auto">Teljes automata</option>
+        </select>
+        <label>AI modell</label>
+        <input id="ai8Model" placeholder="gpt-5">
+        <label>Időpontfoglalási URL</label>
+        <input id="ai8Booking">
+        <button id="ai8SaveSettings" class="secondary" style="margin-top:10px">Beállítások mentése</button>
+
+        <h2 style="margin-top:24px">Automatikus audit</h2>
+        <div id="ai8Audit"></div>
+        <h2 style="margin-top:24px">AI műveleti napló</h2>
+        <div id="ai9Log"></div>
+
+        <div class="site-box" style="margin-top:16px">
+          <strong>Távoli működéshez</strong>
+          <p class="hint">GitHubban szükséges: <code>OPENAI_API_KEY</code> Secret és <code>AI_WEBMASTER_ENABLED=true</code> Repository Variable. Ezután a munkafolyamat óránként ellenőrizhet és dolgozhat akkor is, amikor a számítógéped ki van kapcsolva.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="visualBuilderView" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <div>
+        <h1 style="margin:0">Vizuális oldalépítő</h1>
+        <p class="hint" style="margin:4px 0 0">Balról húzd be az elemeket, középen rendezd, jobbra szerkeszd.</p>
+      </div>
+      <div class="block-actions">
+        <button id="v7PreviewRefresh" class="secondary">Élő előnézet frissítése</button>
+        <button id="v7BackToEditor" class="muted-btn">Vissza az oldalszerkesztőhöz</button>
+      </div>
+    </div>
+
+    <div class="v7-builder">
+      <aside class="v7-pane">
+        <h3>Elemek</h3>
+        <div id="v7Palette">
+          <div class="v7-palette-item" draggable="true" data-type="text">Szöveg</div>
+          <div class="v7-palette-item" draggable="true" data-type="image">Kép</div>
+          <div class="v7-palette-item" draggable="true" data-type="video">Videó</div>
+          <div class="v7-palette-item" draggable="true" data-type="iconbox">Ikondoboz</div>
+          <div class="v7-palette-item" draggable="true" data-type="testimonial">Vélemény</div>
+          <div class="v7-palette-item" draggable="true" data-type="price">Ár</div>
+          <div class="v7-palette-item" draggable="true" data-type="buttons">Gombsor</div>
+          <div class="v7-palette-item" draggable="true" data-type="divider">Elválasztó</div>
+        </div>
+      </aside>
+
+      <section class="v7-pane">
+        <h3>Oldal blokkjai</h3>
+        <div id="v7Canvas" class="v7-canvas"></div>
+        <div class="v7-preview-wrap">
+          <div class="v7-preview-toolbar">
+            <strong>Élő előnézet</strong>
+            <span class="hint">A módosítások mentés nélkül is ellenőrizhetők.</span>
+          </div>
+          <iframe id="v7Preview" class="v7-preview"></iframe>
+        </div>
+      </section>
+
+      <aside class="v7-pane v7-inspector">
+        <h3>Elem beállításai</h3>
+        <div id="v7Inspector"><p class="hint">Kattints egy blokkra a szerkesztéshez.</p></div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="mediaView" hidden>
+    <h1>Médiatár</h1>
+    <p class="hint">Képek és videók feltöltése, átnevezése, törlése és felhasználása.</p>
+    <div class="drop">
+      <input id="mediaUploadInput" type="file" multiple accept="image/*,video/mp4,video/webm,video/ogg">
+      <div class="hint">Több fájlt is kijelölhetsz. Maximum 100 MB / fájl.</div>
+    </div>
+    <div class="toolbar">
+      <button id="refreshMediaBtn" class="secondary">Médiatár frissítése</button>
+      <button id="mediaSettingsBtn" class="secondary">Weboldal média beállítások</button>
+      <button id="designBtn" class="secondary">Dizájn</button>
+      <button id="contactBtn" class="secondary">Kapcsolat</button>
+      <button id="seoBtn" class="secondary">SEO</button>
+    </div>
+    <div id="mediaGrid" class="media-grid"></div>
+  </div>
+<div class="tabs"><button class="tab active" data-tab="editor">Oldalszerkesztő</button><button id="visualBuilderTab" class="muted-btn">Vizuális építő</button><button id="aiWebmasterTab" class="muted-btn">AI Webmester</button><button id="marketingTab" class="muted-btn">AI Marketing</button><button id="taskCenterTab" class="muted-btn">AI Feladatok</button><button id="executorTab" class="muted-btn">AI Végrehajtó</button><button id="autopilotTab" class="muted-btn">AI Autopilot</button><button id="contentGenTab" class="muted-btn">AI Tartalom</button><button id="agentsTab" class="muted-btn">AI Ügynökök</button><button id="ceoTab" class="muted-btn">AI Cégvezető</button><button id="bosTab" class="muted-btn">AI Business OS</button><button id="biTab" class="muted-btn">AI Intelligence</button><button class="tab" data-tab="media">Médiatár</button><button class="tab" data-tab="backups">Mentések</button></div>
+<div id="editor" class="tabpane active"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><h1 id="pageTitle" style="margin:0">Oldal</h1><p class="hint" style="margin:4px 0 0">Meglévő szövegek és új tartalomblokkok.</p></div><span id="dirtyBadge" class="badge" hidden>Nem mentett változás</span></div>
+<div class="page-settings"><div class="row"><div><label>Oldal neve az adminban</label><input id="adminTitle"></div><div><label>Oldal státusza</label><select id="pageEnabled"><option value="true">Megjelenik</option><option value="false">Elrejtve</option></select></div></div></div>
+<div class="page-settings"><h2 style="margin-top:0">Meglévő oldalszövegek</h2><div id="existingFields"></div></div>
+<h2>Új tartalmi blokkok</h2><div class="toolbar"><button data-add="text">+ Szöveg</button><button data-add="image">+ Kép</button><button data-add="video">+ Videó</button>
+    <button data-add="iconbox">+ Ikondoboz</button>
+    <button data-add="testimonial">+ Vélemény</button>
+    <button data-add="price">+ Ár</button>
+    <button data-add="buttons">+ Gombsor</button>
+    <button data-add="divider">+ Elválasztó</button><button data-add="cta">+ CTA gomb</button><button data-add="faq">+ GYIK</button></div><div id="blocks"></div></div>
+<div id="media" class="tabpane"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><h1>Médiatár</h1><p class="hint">Feltöltött képek és videók kezelése.</p></div><label class="btn" style="margin:0">+ Média feltöltése<input id="libraryUpload" type="file" accept="image/*,video/mp4,video/webm,video/ogg" hidden></label></div><div id="mediaGrid" class="media-grid"></div></div>
+<div id="backups" class="tabpane"><h1>Biztonsági mentések</h1><p class="hint">Minden Mentés előtt automatikus másolat készül. Legfeljebb 25 marad meg.</p><div id="backupList" class="backup-list"></div></div>
+</section></div></main>
+<script>
+const API='/__admin'; let model=null,current='index',dirty=false; const $=s=>document.querySelector(s); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const uid=()=>`b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
+function status(msg,err=false){const e=$('#status');e.textContent=msg;e.className='status show'+(err?' err':'');setTimeout(()=>e.classList.remove('show'),5000)} function markDirty(v=true){dirty=v;$('#dirtyBadge').hidden=!dirty}
+async function api(path,opts={}){const r=await fetch(API+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);return j}
+function switchTab(name){document.querySelectorAll('.tab,.tabpane').forEach(x=>x.classList.remove('active'));document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');$('#'+name)?.classList.add('active');if(name==='media')loadMedia();if(name==='backups')loadBackups()}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));$('#mediaTabBtn').onclick=()=>switchTab('media');$('#backupTabBtn').onclick=()=>switchTab('backups');
+async function init(){try{model=await api('/content'); model.site=model.site||{logo_text:'Fehérvitál',logo_image:'',favicon:'',hero_media:{type:'none',src:'',alt:''},gallery:[]};Object.values(model.pages||{}).forEach(p=>{p.enabled??=true;p.fields??=[];p.blocks??=[]});renderPages();renderEditor()}catch(e){status(e.message,true)}}
+function renderPages(){const box=$('#pages');box.innerHTML='';Object.entries(model.pages).forEach(([slug,p])=>{const b=document.createElement('button');b.textContent=p.title||slug;b.className=slug===current?'active':'';b.onclick=()=>{current=slug;renderPages();renderEditor();switchTab('editor')};box.appendChild(b)})}
+function renderEditor(){const p=model.pages[current];$('#pageTitle').textContent=p.title||current;$('#adminTitle').value=p.title||'';$('#pageEnabled').value=String(p.enabled!==false);const existing=$('#existingFields');existing.innerHTML='';(p.fields||[]).forEach((f,i)=>{const d=document.createElement('div');d.style.marginTop='10px';const multiline=String(f.value||'').length>90;d.innerHTML=`<label>${esc(f.label||f.key)}</label>${multiline?`<textarea>${esc(f.value)}</textarea>`:`<input value="${esc(f.value)}">`}`;const inp=d.querySelector('input,textarea');inp.oninput=()=>{f.value=inp.value;markDirty()};existing.appendChild(d)});if(!(p.fields||[]).length)existing.innerHTML='<p class="hint">Nincs importált szöveg.</p>';const box=$('#blocks');box.innerHTML='';(p.blocks||[]).forEach((b,i)=>box.appendChild(blockEl(b,i)));if(!(p.blocks||[]).length)box.innerHTML='<div class="empty">Még nincs új blokk ezen az oldalon.</div>'}
+function opt(v,l,c){return `<option value="${v}" ${String(v)===String(c)?'selected':''}>${l}</option>`}
+function preview(b){if(!b.src)return'';if(b.type==='image')return`<img src="/${esc(b.src)}">`;if(/^https?:\/\//.test(b.src))return`<small>${esc(b.src)}</small>`;return`<video src="/${esc(b.src)}" controls></video>`}
+function blockEl(b,i){const e=document.createElement('div');e.className='block'+(b.visible===false?' hidden-block':'');let f='';
+if(b.type==='text')f=`<div class="row"><div><label>Címsor</label><input data-k="heading" value="${esc(b.heading)}"></div><div><label>Méret</label><select data-k="level">${opt(2,'H2',b.level||2)}${opt(3,'H3',b.level||2)}</select></div></div><label>Szöveg</label><textarea data-k="text">${esc(b.text)}</textarea>`;
+if(b.type==='image')f=`<label>Kép</label><input data-k="src" value="${esc(b.src)}" placeholder="assets/uploads/..."><div class="preview">${preview(b)}</div><label class="btn secondary" style="margin-top:10px">Fájl feltöltése<input type="file" data-upload="image" accept="image/*" hidden></label><div class="row"><div><label>Alt szöveg</label><input data-k="alt" value="${esc(b.alt)}"></div><div><label>Képaláírás</label><input data-k="caption" value="${esc(b.caption)}"></div></div>`;
+if(b.type==='video')f=`<label>Videó vagy YouTube/Vimeo URL</label><input data-k="src" value="${esc(b.src)}"><div class="preview">${preview(b)}</div><label class="btn secondary" style="margin-top:10px">Videó feltöltése<input type="file" data-upload="video" accept="video/mp4,video/webm,video/ogg" hidden></label><label>Képaláírás</label><input data-k="caption" value="${esc(b.caption)}">`;
+if(b.type==='cta')f=`<label>Cím</label><input data-k="heading" value="${esc(b.heading)}"><label>Szöveg</label><textarea data-k="text">${esc(b.text)}</textarea><div class="row"><div><label>Gomb felirata</label><input data-k="buttonText" value="${esc(b.buttonText)}"></div><div><label>Link</label><input data-k="url" value="${esc(b.url)}"></div></div>`;
+if(b.type==='faq'){f=`<label>Szakasz címe</label><input data-k="heading" value="${esc(b.heading)}"><div data-faq-items></div><button class="secondary" data-faq-add>+ Kérdés</button>`}
+e.innerHTML=`<div class="block-head"><div><strong>${({text:'Szöveg',image:'Kép',video:'Videó',cta:'CTA',faq:'GYIK'})[b.type]||b.type}</strong> <span class="badge">#${i+1}</span></div><div class="block-actions"><button class="secondary" data-up>↑</button><button class="secondary" data-down>↓</button><button class="muted-btn" data-dup>Másolás</button><button class="danger" data-del>Törlés</button></div></div>${f}<div class="row3"><div><label>Szélesség</label><select data-k="width">${opt('100','100%',b.width||'100')}${opt('75','75%',b.width||'100')}${opt('50','50%',b.width||'100')}</select></div><div><label>Igazítás</label><select data-k="align">${opt('left','Balra',b.align||'left')}${opt('center','Középre',b.align||'left')}</select></div><div><label>Megjelenés</label><select data-k="style">${opt('normal','Normál',b.style||'normal')}${opt('highlight','Kiemelt',b.style||'normal')}</select></div></div><label class="checkline"><input data-visible type="checkbox" ${b.visible!==false?'checked':''}> Megjelenik</label>`;
+e.querySelectorAll('[data-k]').forEach(x=>x.addEventListener(x.tagName==='SELECT'?'change':'input',()=>{b[x.dataset.k]=x.value;markDirty()}));e.querySelector('[data-visible]').onchange=x=>{b.visible=x.target.checked;markDirty();renderEditor()};e.querySelector('[data-del]').onclick=()=>{if(confirm('Törlöd ezt a blokkot?')){model.pages[current].blocks.splice(i,1);markDirty();renderEditor()}};e.querySelector('[data-dup]').onclick=()=>{const c=JSON.parse(JSON.stringify(b));c.id=uid();model.pages[current].blocks.splice(i+1,0,c);markDirty();renderEditor()};e.querySelector('[data-up]').onclick=()=>move(i,-1);e.querySelector('[data-down]').onclick=()=>move(i,1);e.querySelectorAll('[data-upload]').forEach(x=>x.onchange=()=>uploadToBlock(x,b));
+if(b.type==='faq'){b.items??=[];const box=e.querySelector('[data-faq-items]');const rr=()=>{box.innerHTML='';b.items.forEach((it,j)=>{const q=document.createElement('div');q.className='faq-item';q.innerHTML=`<label>Kérdés</label><input value="${esc(it.question)}"><label>Válasz</label><textarea>${esc(it.answer)}</textarea><button class="danger">Törlés</button>`;const [inp,ta]=q.querySelectorAll('input,textarea');inp.oninput=()=>{it.question=inp.value;markDirty()};ta.oninput=()=>{it.answer=ta.value;markDirty()};q.querySelector('button').onclick=()=>{b.items.splice(j,1);markDirty();rr()};box.appendChild(q)})};rr();e.querySelector('[data-faq-add]').onclick=()=>{b.items.push({question:'',answer:''});markDirty();rr()}}
+return e}
+function move(i,d){const a=model.pages[current].blocks,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];markDirty();renderEditor()}
+async function fileToBase64(f){return await new Promise((ok,err)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=err;r.readAsDataURL(f)})}
+async function uploadFile(f){const max=f.type.startsWith('video/')?90*1024*1024:15*1024*1024;if(f.size>max)throw new Error('A fájl túl nagy.');return api('/upload',{method:'POST',body:JSON.stringify({filename:f.name,mime:f.type,data_base64:await fileToBase64(f)})})}
+async function uploadToBlock(input,b){const f=input.files?.[0];if(!f)return;try{status('Feltöltés...');const o=await uploadFile(f);b.src=o.path;markDirty();renderEditor();status('Feltöltve.')}catch(e){status(e.message,true)}}
+document.addEventListener('click',e=>{
+  const txt=(e.target.textContent||'').trim();
+  if(txt==='Médiatár'){
+    document.querySelector('#mediaView').hidden=false;
+    document.querySelector('#siteMediaSettings').hidden=true;
+    document.querySelectorAll('.panel > :not(#mediaView):not(#siteMediaSettings)').forEach(x=>{ if(x.id!=='mediaView'&&x.id!=='siteMediaSettings') x.dataset.v5Hidden=x.hidden?'1':'0'; });
+    loadMedia();
+  }
+const t=e.target.closest('[data-add]');if(!t||!model)return;const type=t.dataset.add,b={id:uid(),type,visible:true,width:'100',align:'left',style:'normal'};if(type==='text')Object.assign(b,{heading:'',level:2,text:''});if(type==='image')Object.assign(b,{src:'',alt:'',caption:''});if(type==='video')Object.assign(b,{src:'',caption:''});if(type==='cta')Object.assign(b,{heading:'',text:'',buttonText:'Tovább',url:''});if(type==='faq')Object.assign(b,{heading:'Gyakori kérdések',items:[]});model.pages[current].blocks.push(b);markDirty();renderEditor()})
+$('#adminTitle').oninput=e=>{model.pages[current].title=e.target.value;markDirty();renderPages();$('#pageTitle').textContent=e.target.value};$('#pageEnabled').onchange=e=>{model.pages[current].enabled=e.target.value==='true';markDirty()};
+async function save(){try{const o=await api('/content',{method:'POST',body:JSON.stringify(model)});markDirty(false);status('Mentve.'+(o.backup?' Biztonsági mentés készült.':''));return true}catch(e){status('Mentési hiba: '+e.message,true);return false}}
+$('#saveBtn').onclick=save;$('#previewBtn').onclick=async()=>{if(dirty&&!(await save()))return;const map={index:'/',biorezonancia:'/biorezonancia.html',harmonyscan:'/harmonyscan.html',ai:'/ai.html',kapcsolat:'/kapcsolat.html'};window.open((map[current]||'/')+'?v='+Date.now(),'preview')};$('#publishBtn').onclick=async()=>{if(!(await save()))return;if(!confirm('Közzétegyem GitHubra?'))return;try{status('Közzététel...');const o=await api('/publish',{method:'POST',body:JSON.stringify({message:'Update Fehervital website content'})});status(o.message)}catch(e){status(e.message,true)}};
+async function loadMedia(){try{const o=await api('/media');const box=$('#mediaGrid');box.innerHTML='';o.items.forEach(m=>{const c=document.createElement('div');c.className='media-card';c.innerHTML=`<div class="media-thumb">${m.kind==='image'?`<img src="/${esc(m.path)}">`:`<video src="/${esc(m.path)}"></video>`}</div><small title="${esc(m.name)}">${esc(m.name)}</small><div class="block-actions"><button class="secondary" data-copy>Útvonal</button><button class="danger" data-delete>Törlés</button></div>`;c.querySelector('[data-copy]').onclick=async()=>{await navigator.clipboard.writeText(m.path);status('Média útvonala másolva.')};c.querySelector('[data-delete]').onclick=async()=>{if(!confirm('Törlöd a médiatárból? A már használt blokkokban a hivatkozás megszakadhat.'))return;try{await api('/delete-media',{method:'POST',body:JSON.stringify({path:m.path})});loadMedia();status('Média törölve.')}catch(e){status(e.message,true)}};box.appendChild(c)});if(!o.items.length)box.innerHTML='<div class="empty">A médiatár még üres.</div>'}catch(e){status(e.message,true)}}
+$('#libraryUpload').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{status('Feltöltés...');await uploadFile(f);e.target.value='';await loadMedia();status('Média feltöltve.')}catch(x){status(x.message,true)}};
+async function loadBackups(){try{const o=await api('/backups');const box=$('#backupList');box.innerHTML='';o.items.forEach(b=>{const r=document.createElement('div');r.className='backup-row';r.innerHTML=`<div><b>${esc(b.name)}</b><div class="hint">${new Date(b.modified*1000).toLocaleString('hu-HU')}</div></div><button class="secondary">Visszaállítás</button>`;r.querySelector('button').onclick=async()=>{if(!confirm('Visszaállítod ezt a mentést? A jelenlegi állapotról előtte új mentés készül.'))return;try{const x=await api('/restore',{method:'POST',body:JSON.stringify({name:b.name})});model=x.content;markDirty(false);renderPages();renderEditor();switchTab('editor');status('Biztonsági mentés visszaállítva.')}catch(e){status(e.message,true)}};box.appendChild(r)});if(!o.items.length)box.innerHTML='<div class="empty">Még nincs biztonsági mentés.</div>'}catch(e){status(e.message,true)}}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});init();
+
+/* V9 AI WEBMESTER CONTROLLER */
+let ai9State={automation:{},tasks:{tasks:[]},audit:{},log:{entries:[]}};
+
+function ai9ShowOnly(viewId){
+  const special=['biView','bosView','ceoView','agentsView','contentGenView','autopilotView','executorView','taskCenterView','marketingView','aiWebmasterView','visualBuilderView','mediaView','siteMediaSettings','designView','contactView','seoView'];
+  special.forEach(id=>{const e=document.getElementById(id); if(e)e.hidden=(id!==viewId)});
+  const editor=document.getElementById('editor');
+  const media=document.getElementById('media');
+  const backups=document.getElementById('backups');
+  if(editor)editor.classList.toggle('active',!viewId);
+  if(media)media.classList.remove('active');
+  if(backups)backups.classList.remove('active');
+}
+
+async function ai9Load(){
+  try{
+    ai9State=await api('/ai-state');
+    const a=ai9State.automation||{};
+    const en=document.getElementById('ai8Enabled'); if(en)en.checked=!!a.enabled;
+    const mode=document.getElementById('ai8Mode'); if(mode)mode.value=a.mode||'approval';
+    const mdl=document.getElementById('ai8Model'); if(mdl)mdl.value=a.model||'gpt-5';
+    const book=document.getElementById('ai8Booking'); if(book)book.value=a.booking_url||'';
+    ai9RenderTasks();
+    ai9RenderAudit();
+    ai9RenderLog();
+  }catch(e){status('AI Webmester hiba: '+e.message,true)}
+}
+
+function ai9RenderTasks(){
+  const box=document.getElementById('ai8Tasks'); if(!box)return;
+  const ts=(ai9State.tasks?.tasks||[]).slice().reverse();
+  if(!ts.length){box.innerHTML='<p class="hint">Még nincs AI feladat.</p>';return}
+  box.innerHTML='';
+  ts.slice(0,40).forEach(t=>{
+    const plan=t.plan||null;
+    const risk=plan?.risk||'';
+    const changes=plan?.changes||[];
+    const d=document.createElement('div');
+    d.className='ai8-task';
+    const planHtml=plan?`
+      <details class="ai9-plan">
+        <summary>AI terv · <span class="ai9-risk-${esc(risk)}">kockázat: ${esc(risk)}</span></summary>
+        <div class="hint" style="margin:8px 0">${esc(plan.summary||'')}</div>
+        ${changes.map((c,i)=>`<div class="ai9-change"><b>${i+1}.</b> ${esc(c.action||'')} · ${esc(c.page||'')}${c.key?` · ${esc(c.key)}`:''}</div>`).join('')}
+      </details>`:'';
+    const actions=t.status==='waiting_approval'?`
+      <div class="ai9-actions">
+        <button class="secondary" data-ai9-approve>Jóváhagyás és alkalmazás</button>
+        <button class="danger" data-ai9-reject>Elutasítás</button>
+      </div>`:'';
+    d.innerHTML=`<div><span class="ai8-status">${esc(t.status||'pending')}</span></div>
+      <div style="margin-top:6px">${esc(t.prompt||'')}</div>
+      ${planHtml}${actions}
+      ${t.error?`<div style="color:#a33;margin-top:6px">${esc(t.error)}</div>`:''}`;
+    d.querySelector('[data-ai9-approve]')?.addEventListener('click',async()=>{
+      if(!confirm('Alkalmazzuk az AI által tervezett módosításokat?'))return;
+      try{
+        await api('/ai-approve',{method:'POST',body:JSON.stringify({id:t.id})});
+        status('AI terv alkalmazva.');
+        await ai9Load();
+        model=await api('/content'); renderPages(); renderEditor();
+      }catch(e){status(e.message,true)}
+    });
+    d.querySelector('[data-ai9-reject]')?.addEventListener('click',async()=>{
+      if(!confirm('Elutasítod ezt az AI tervet?'))return;
+      try{await api('/ai-reject',{method:'POST',body:JSON.stringify({id:t.id})});status('AI terv elutasítva.');await ai9Load()}
+      catch(e){status(e.message,true)}
+    });
+    box.appendChild(d);
+  });
+}
+
+function ai9RenderAudit(){
+  const box=document.getElementById('ai8Audit'); if(!box)return;
+  const a=ai9State.audit||{}, items=a.items||[], s=a.summary||{};
+  if(!a.last_run){box.innerHTML='<p class="hint">Audit még nem futott.</p>';return}
+  box.innerHTML=`<p class="hint">Utolsó futás: ${new Date(a.last_run).toLocaleString('hu-HU')} · magas: ${s.high||0}, közepes: ${s.medium||0}, alacsony: ${s.low||0}</p>`;
+  if(!items.length){box.innerHTML+='<div class="ai8-audit-item">Nem talált problémát.</div>';return}
+  items.slice(0,25).forEach(x=>{
+    const d=document.createElement('div'); d.className='ai8-audit-item';
+    d.innerHTML=`<b>${esc(x.page||'')}</b> · ${esc(x.severity||'')}<br>${esc(x.message||'')}`;
+    box.appendChild(d);
+  });
+}
+
+function ai9RenderLog(){
+  const box=document.getElementById('ai9Log'); if(!box)return;
+  const entries=(ai9State.log?.entries||[]).slice().reverse();
+  if(!entries.length){box.innerHTML='<p class="hint">Még nincs AI naplóbejegyzés.</p>';return}
+  box.innerHTML='';
+  entries.slice(0,30).forEach(x=>{
+    const d=document.createElement('div'); d.className='ai9-log';
+    d.innerHTML=`<b>${esc(x.event||'')}</b> · ${esc(x.message||'')}<div class="hint">${x.time?new Date(x.time).toLocaleString('hu-HU'):''}</div>`;
+    box.appendChild(d);
+  });
+}
+
+function ai9Bind(){
+  const tab=document.getElementById('aiWebmasterTab');
+  if(tab)tab.onclick=()=>{ai9ShowOnly('aiWebmasterView');ai9Load()};
+  document.getElementById('ai8Refresh')?.addEventListener('click',ai9Load);
+
+  document.getElementById('ai8Queue')?.addEventListener('click',async()=>{
+    const ta=document.getElementById('ai8Command');
+    const prompt=(ta?.value||'').trim();
+    if(!prompt){status('Írj be egy AI feladatot.',true);return}
+    try{
+      await api('/ai-task',{method:'POST',body:JSON.stringify({prompt})});
+      ta.value='';
+      status('AI feladat hozzáadva.');
+      await ai9Load();
+    }catch(e){status(e.message,true)}
+  });
+
+  document.getElementById('ai8RunLocal')?.addEventListener('click',async()=>{
+    status('AI Webmester fut...');
+    try{
+      const r=await api('/ai-run-local',{method:'POST',body:'{}'});
+      if(!r.ok)status('AI futás hibával végződött: '+(r.stderr||''),true);
+      else status('AI futás kész.');
+      await ai9Load();
+    }catch(e){status(e.message,true)}
+  });
+
+  document.getElementById('ai8SaveSettings')?.addEventListener('click',async()=>{
+    try{
+      await api('/ai-settings',{method:'POST',body:JSON.stringify({
+        enabled:document.getElementById('ai8Enabled')?.checked||false,
+        mode:document.getElementById('ai8Mode')?.value||'approval',
+        model:(document.getElementById('ai8Model')?.value||'gpt-5').trim(),
+        booking_url:(document.getElementById('ai8Booking')?.value||'').trim()
+      })});
+      status('AI beállítások mentve.');
+      await ai9Load();
+    }catch(e){status(e.message,true)}
+  });
+
+  // Make the visual builder tab at least open its panel even if older V7 JS is unavailable.
+  const vb=document.getElementById('visualBuilderTab');
+  if(vb && !vb.dataset.ai9Bound){
+    vb.dataset.ai9Bound='1';
+    vb.addEventListener('click',()=>{
+      ai9ShowOnly('visualBuilderView');
+      const canvas=document.getElementById('v7Canvas');
+      if(canvas && !canvas.innerHTML.trim())canvas.innerHTML='<div class="v7-empty">A vizuális építő felülete betöltött. A blokkkezelést az Oldalszerkesztőből is eléred.</div>';
+    });
+  }
+}
+
+setTimeout(ai9Bind,250);
+
+
+let m10State={};
+
+async function m10Load(){
+  try{
+    m10State=await api('/marketing-state');
+    const s=m10State.scores||{};
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=(v??'–')+(typeof v==='number'?'/100':'')};
+    set('m10Overall',s.overall);set('m10Seo',s.seo);set('m10Content',s.content);set('m10Conversion',s.conversion);set('m10Technical',s.technical);
+    const sum=document.getElementById('m10Summary');if(sum)sum.textContent=m10State.summary||'Az első elemzés még nem futott le.';
+    const st=m10State.stats||{};
+    const stats=document.getElementById('m10Stats');
+    if(stats)stats.textContent=`Oldalak: ${st.pages||0} · szavak: ${st.words||0} · CTA blokkok: ${st.cta_blocks||0} · GYIK blokkok: ${st.faq_blocks||0}`;
+    const en=document.getElementById('m10Enabled');if(en)en.checked=!!m10State.enabled;
+    const mode=document.getElementById('m10Mode');if(mode)mode.value=m10State.mode||'recommend';
+    const goal=document.getElementById('m10Goal');if(goal)goal.value=m10State.goal||'';
+    const aud=document.getElementById('m10Audience');if(aud)aud.value=m10State.target_audience||'';
+    const cad=document.getElementById('m10Cadence');if(cad)cad.value=m10State.content_cadence||'weekly';
+    m10RenderRecommendations();m10RenderWeekly();m10RenderHistory();
+  }catch(e){status('Marketing Manager hiba: '+e.message,true)}
+}
+
+function m10RenderRecommendations(){
+  const box=document.getElementById('m10Recommendations');if(!box)return;
+  const recs=m10State.recommendations||[];
+  if(!recs.length){box.innerHTML='<p class="hint">Még nincs javaslat. Futtass marketing elemzést.</p>';return}
+  box.innerHTML='';
+  recs.forEach(r=>{
+    const d=document.createElement('div');d.className='m10-rec';
+    d.innerHTML=`<div class="m10-rec-head"><strong>${esc(r.title||'Javaslat')}</strong><span class="m10-priority-${esc(r.priority||'medium')}">${esc(r.priority||'medium')}</span></div>
+      <div class="hint" style="margin-top:5px">${esc(r.category||'')} · ${esc(r.reason||'')}</div>
+      <div class="block-actions" style="margin-top:9px">
+        <button class="secondary" data-m10-queue ${r.status==='queued'?'disabled':''}>${r.status==='queued'?'Feladatsorban':'Küldés az AI Webmesternek'}</button>
+      </div>`;
+    d.querySelector('[data-m10-queue]')?.addEventListener('click',async()=>{
+      try{
+        await api('/marketing-queue',{method:'POST',body:JSON.stringify({ids:[r.id]})});
+        status('Marketing javaslat átadva az AI Webmesternek.');
+        await m10Load();await ai9Load();
+      }catch(e){status(e.message,true)}
+    });
+    box.appendChild(d);
+  });
+}
+
+function m10RenderWeekly(){
+  const box=document.getElementById('m10Weekly');if(!box)return;
+  const arr=m10State.weekly_plan||[];
+  box.innerHTML=arr.length?'':'<p class="hint">Nincs terv.</p>';
+  arr.forEach(x=>{
+    const d=document.createElement('div');d.className='m10-day';
+    d.innerHTML=`<b>${esc(x.day||'')}</b><br><span class="hint">${esc(x.task||'')}</span>`;
+    box.appendChild(d);
+  });
+}
+
+function m10RenderHistory(){
+  const box=document.getElementById('m10History');if(!box)return;
+  const arr=(m10State.history||[]).slice(-20);
+  if(!arr.length){box.innerHTML='<span class="hint">Még nincs trendadat.</span>';return}
+  box.innerHTML='';
+  arr.forEach(x=>{
+    const b=document.createElement('div');b.className='m10-bar';b.style.height=Math.max(4,Number(x.overall||0))+'%';b.title=`${x.overall||0}/100`;
+    box.appendChild(b);
+  });
+}
+
+function m10Bind(){
+  document.getElementById('marketingTab')?.addEventListener('click',()=>{ai9ShowOnly('marketingView');m10Load()});
+  document.getElementById('m10Refresh')?.addEventListener('click',m10Load);
+  document.getElementById('m10Analyze')?.addEventListener('click',async()=>{
+    status('AI Marketing Manager elemzi a weboldalt...');
+    try{
+      await api('/marketing-run',{method:'POST',body:JSON.stringify({use_ai:true})});
+      status('Marketing elemzés elkészült.');
+      await m10Load();
+    }catch(e){
+      status('AI nélküli alap-elemzéssel próbálkozom...');
+      try{
+        await api('/marketing-run',{method:'POST',body:JSON.stringify({use_ai:false})});
+        status('Marketing alap-elemzés elkészült.');
+        await m10Load();
+      }catch(e2){status(e2.message,true)}
+    }
+  });
+  document.getElementById('m10Save')?.addEventListener('click',async()=>{
+    try{
+      await api('/marketing-settings',{method:'POST',body:JSON.stringify({
+        enabled:document.getElementById('m10Enabled')?.checked||false,
+        mode:document.getElementById('m10Mode')?.value||'recommend',
+        goal:document.getElementById('m10Goal')?.value||'',
+        target_audience:document.getElementById('m10Audience')?.value||'',
+        content_cadence:document.getElementById('m10Cadence')?.value||'weekly'
+      })});
+      status('Marketing beállítások mentve.');await m10Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(m10Bind,300);
+
+
+let t11State={tasks:[]};
+let t11Filter='all';
+let t11PriorityFilter='all';
+
+async function t11Load(){
+  try{
+    const data=await api('/task-center');
+    t11State=data||{tasks:[]};
+    t11Render();
+  }catch(e){status('AI Feladatkezelő hiba: '+e.message,true)}
+}
+
+function t11StatusLabel(s){
+  const m={pending:'Új',waiting_approval:'Jóváhagyásra vár',in_progress:'Folyamatban',applied:'Kész',rejected:'Elutasítva',error:'Hiba'};
+  return m[s]||s||'Új';
+}
+function t11SourceLabel(s){
+  const m={ai_marketing_manager:'AI Marketing',local_admin:'AI Webmester',task_center:'Kézi',github_action:'Automata'};
+  return m[s]||s||'AI';
+}
+function t11Render(){
+  const all=t11State.tasks||[];
+  document.getElementById('t11AllCount').textContent=all.length;
+  document.getElementById('t11NewCount').textContent=all.filter(t=>['pending','waiting_approval'].includes(t.status)).length;
+  document.getElementById('t11DoingCount').textContent=all.filter(t=>t.status==='in_progress').length;
+  document.getElementById('t11DoneCount').textContent=all.filter(t=>t.status==='applied').length;
+
+  let arr=all.slice().reverse();
+  if(t11Filter!=='all')arr=arr.filter(t=>t.status===t11Filter);
+  if(t11PriorityFilter!=='all')arr=arr.filter(t=>(t.priority||'medium')===t11PriorityFilter);
+
+  const box=document.getElementById('t11Tasks');
+  if(!arr.length){box.innerHTML='<p class="hint">Nincs a szűrésnek megfelelő feladat.</p>';return}
+  box.innerHTML='';
+  arr.forEach(t=>{
+    const p=t.priority||'medium';
+    const d=document.createElement('div');d.className='t11-task';
+    const plan=t.plan||{};
+    const risk=plan.risk||'';
+    d.innerHTML=`
+      <div class="t11-task-head">
+        <div>
+          <div class="t11-badges">
+            <span class="t11-badge t11-priority-${esc(p)}">${esc(p)}</span>
+            <span class="t11-badge">${esc(t11StatusLabel(t.status))}</span>
+            <span class="t11-badge">${esc(t11SourceLabel(t.source))}</span>
+            ${t.category?`<span class="t11-badge">${esc(t.category)}</span>`:''}
+          </div>
+          <div style="margin-top:8px;font-weight:800">${esc(t.prompt||'')}</div>
+        </div>
+      </div>
+      ${t.reason?`<div class="t11-meta"><b>Miért fontos:</b> ${esc(t.reason)}</div>`:''}
+      ${t.impact?`<div class="t11-meta"><b>Várható hatás:</b> ${esc(t.impact)}</div>`:''}
+      ${plan.summary?`<details class="ai9-plan" style="margin-top:9px"><summary>AI terv · kockázat: ${esc(risk||'n/a')}</summary><div class="hint" style="margin-top:8px">${esc(plan.summary)}</div></details>`:''}
+      <div class="t11-actions">
+        ${t.status==='pending'?'<button class="secondary" data-doing>Folyamatban</button>':''}
+        ${t.status==='in_progress'?'<button class="secondary" data-done>Kész</button>':''}
+        ${t.status==='waiting_approval'?'<button class="secondary" data-open-webmaster>AI Webmester megnyitása</button>':''}
+        <button class="secondary" data-priority>Prioritás váltása</button>
+        <button class="danger" data-delete>Törlés</button>
+      </div>`;
+    d.querySelector('[data-doing]')?.addEventListener('click',()=>t11Update(t.id,{status:'in_progress'}));
+    d.querySelector('[data-done]')?.addEventListener('click',()=>t11Update(t.id,{status:'applied'}));
+    d.querySelector('[data-open-webmaster]')?.addEventListener('click',()=>{ai9ShowOnly('aiWebmasterView');ai9Load()});
+    d.querySelector('[data-priority]')?.addEventListener('click',async()=>{
+      const next=p==='high'?'medium':p==='medium'?'low':'high';
+      await t11Update(t.id,{priority:next});
+    });
+    d.querySelector('[data-delete]')?.addEventListener('click',async()=>{
+      if(!confirm('Törlöd ezt a feladatot?'))return;
+      try{await api('/task-delete',{method:'POST',body:JSON.stringify({id:t.id})});status('Feladat törölve.');await t11Load()}
+      catch(e){status(e.message,true)}
+    });
+    box.appendChild(d);
+  });
+}
+async function t11Update(id,patch){
+  try{await api('/task-update',{method:'POST',body:JSON.stringify({id,...patch})});await t11Load()}
+  catch(e){status(e.message,true)}
+}
+function t11Bind(){
+  document.getElementById('taskCenterTab')?.addEventListener('click',()=>{ai9ShowOnly('taskCenterView');t11Load()});
+  document.getElementById('t11Refresh')?.addEventListener('click',t11Load);
+  document.getElementById('t11New')?.addEventListener('click',()=>document.getElementById('t11CreateBox').hidden=false);
+  document.getElementById('t11CancelCreate')?.addEventListener('click',()=>document.getElementById('t11CreateBox').hidden=true);
+  document.querySelectorAll('[data-t11-filter]').forEach(b=>b.addEventListener('click',()=>{t11Filter=b.dataset.t11Filter;t11Render()}));
+  document.querySelectorAll('[data-t11-priority]').forEach(b=>b.addEventListener('click',()=>{t11PriorityFilter=b.dataset.t11Priority;t11Render()}));
+  document.getElementById('t11Create')?.addEventListener('click',async()=>{
+    const prompt=(document.getElementById('t11Prompt')?.value||'').trim();
+    if(!prompt){status('A feladat leírása kötelező.',true);return}
+    try{
+      await api('/task-create',{method:'POST',body:JSON.stringify({
+        prompt,
+        priority:document.getElementById('t11Priority')?.value||'medium',
+        category:document.getElementById('t11Category')?.value||'manual',
+        reason:document.getElementById('t11Reason')?.value||'',
+        impact:document.getElementById('t11Impact')?.value||''
+      })});
+      document.getElementById('t11CreateBox').hidden=true;
+      document.getElementById('t11Prompt').value='';
+      status('Új AI feladat létrehozva.');
+      await t11Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(t11Bind,350);
+
+
+let e12State={items:[],history:[],settings:{}};
+
+async function e12Load(){
+  try{
+    e12State=await api('/execution-state');
+    const s=e12State.settings||{};
+    document.getElementById('e12Enabled').checked=!!s.enabled;
+    document.getElementById('e12AutoMode').checked=!!s.auto_mode;
+    document.getElementById('e12AutoLow').checked=!!s.auto_apply_low_risk;
+    document.getElementById('e12Backup').checked=s.create_backup_before_apply!==false;
+    e12RenderItems();e12RenderHistory();
+  }catch(e){status('AI Végrehajtó hiba: '+e.message,true)}
+}
+
+function e12Pretty(obj){
+  try{return JSON.stringify(obj,null,2)}catch(_){return String(obj||'')}
+}
+function e12RenderItems(){
+  const box=document.getElementById('e12Items');if(!box)return;
+  const items=(e12State.items||[]).slice().reverse();
+  if(!items.length){box.innerHTML='<p class="hint">Nincs végrehajtásra váró AI módosítás. Szinkronizáld az AI Webmester jóváhagyásra váró feladatait.</p>';return}
+  box.innerHTML='';
+  items.forEach(item=>{
+    const d=document.createElement('div');d.className='e12-item';
+    const risk=item.risk||'high';
+    d.innerHTML=`
+      <div class="e12-head">
+        <div>
+          <div style="font-weight:800">${esc(item.summary||'AI módosítás')}</div>
+          <div class="hint">Állapot: ${esc(item.status||'ready')} · Task: ${esc(item.task_id||'')}</div>
+        </div>
+        <span class="e12-risk e12-risk-${esc(risk)}">${esc(risk)}</span>
+      </div>
+      <details style="margin-top:10px">
+        <summary><b>Diff / előnézet megnyitása</b></summary>
+        <div class="e12-diff">
+          <div class="e12-pane e12-old"><b>Jelenlegi</b><pre>${esc(e12Pretty(item.before||{}))}</pre></div>
+          <div class="e12-pane e12-new"><b>AI módosítás után</b><pre>${esc(e12Pretty(item.after||{}))}</pre></div>
+        </div>
+      </details>
+      <div class="t11-actions">
+        ${['ready','previewed'].includes(item.status)?'<button class="primary" data-e12-approve>Jóváhagyás és alkalmazás</button><button class="danger" data-e12-reject>Elutasítás</button>':''}
+        ${item.status==='applied'&&item.backup?'<button class="secondary" data-e12-rollback>Visszaállítás</button>':''}
+      </div>`;
+    d.querySelector('[data-e12-approve]')?.addEventListener('click',async()=>{
+      if(!confirm('Alkalmazzuk ezt az AI módosítást? A rendszer előtte biztonsági mentést készít.'))return;
+      try{
+        await api('/execution-approve',{method:'POST',body:JSON.stringify({id:item.id})});
+        status('AI módosítás alkalmazva.');
+        model=await api('/content');renderPages();renderEditor();await e12Load();await t11Load();
+      }catch(e){status(e.message,true)}
+    });
+    d.querySelector('[data-e12-reject]')?.addEventListener('click',async()=>{
+      if(!confirm('Elutasítod ezt a végrehajtási tételt?'))return;
+      try{await api('/execution-reject',{method:'POST',body:JSON.stringify({id:item.id})});status('AI módosítás elutasítva.');await e12Load();await t11Load()}
+      catch(e){status(e.message,true)}
+    });
+    d.querySelector('[data-e12-rollback]')?.addEventListener('click',async()=>{
+      if(!confirm('Visszaállítod az AI módosítás előtti biztonsági mentést?'))return;
+      try{
+        await api('/execution-rollback',{method:'POST',body:JSON.stringify({id:item.id})});
+        status('Visszaállítás kész.');
+        model=await api('/content');renderPages();renderEditor();await e12Load();
+      }catch(e){status(e.message,true)}
+    });
+    box.appendChild(d);
+  });
+}
+function e12RenderHistory(){
+  const box=document.getElementById('e12History');if(!box)return;
+  const arr=(e12State.history||[]).slice().reverse();
+  if(!arr.length){box.innerHTML='<p class="hint">Még nincs végrehajtási esemény.</p>';return}
+  box.innerHTML='';
+  arr.slice(0,30).forEach(x=>{
+    const d=document.createElement('div');d.className='e12-history';
+    d.innerHTML=`<b>${esc(x.event||'')}</b> · ${esc(x.summary||'')}<div class="hint">${x.time?new Date(x.time).toLocaleString('hu-HU'):''}</div>`;
+    box.appendChild(d);
+  });
+}
+function e12Bind(){
+  document.getElementById('executorTab')?.addEventListener('click',()=>{ai9ShowOnly('executorView');e12Load()});
+  document.getElementById('e12Refresh')?.addEventListener('click',e12Load);
+  document.getElementById('e12Sync')?.addEventListener('click',async()=>{
+    try{
+      const r=await api('/execution-sync',{method:'POST',body:'{}'});
+      status(`Végrehajtási sor szinkronizálva. Új tételek: ${r.added||0}`);
+      await e12Load();
+    }catch(e){status(e.message,true)}
+  });
+  document.getElementById('e12SaveSettings')?.addEventListener('click',async()=>{
+    try{
+      await api('/execution-settings',{method:'POST',body:JSON.stringify({
+        enabled:document.getElementById('e12Enabled').checked,
+        auto_mode:document.getElementById('e12AutoMode').checked,
+        auto_apply_low_risk:document.getElementById('e12AutoLow').checked,
+        create_backup_before_apply:document.getElementById('e12Backup').checked
+      })});
+      status('Végrehajtási beállítások mentve.');await e12Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(e12Bind,400);
+
+
+let a13State={};
+
+async function a13Load(){
+  try{
+    a13State=await api('/autopilot-state');
+    const st=a13State.stats||{};
+    document.getElementById('a13Runs').textContent=st.runs||0;
+    document.getElementById('a13Synced').textContent=st.synced||0;
+    document.getElementById('a13Applied').textContent=st.auto_applied||0;
+    document.getElementById('a13Rollback').textContent=st.rolled_back||0;
+    document.getElementById('a13Enabled').checked=!!a13State.enabled;
+    document.getElementById('a13Mode').value=a13State.mode||'observe';
+    document.getElementById('a13AutoLow').checked=!!a13State.auto_apply_low_risk;
+    document.getElementById('a13RollbackDrop').checked=a13State.rollback_on_score_drop!==false;
+    document.getElementById('a13MaxDrop').value=a13State.max_score_drop??3;
+    document.getElementById('a13Interval').value=a13State.interval_minutes??60;
+    a13Render();
+  }catch(e){status('AI Autopilot hiba: '+e.message,true)}
+}
+
+function a13Render(){
+  const res=document.getElementById('a13LastResult');
+  const lr=a13State.last_result||null;
+  if(!lr){res.textContent='Még nem futott.'}
+  else{
+    const cls=lr.status==='ok'?'a13-ok':lr.status==='error'?'a13-error':'a13-warn';
+    res.innerHTML=`<span class="${cls}">${esc(lr.status||'')}</span><br>
+      Szinkronizált: ${esc(String(lr.synced??0))} · Automatikusan alkalmazott: ${esc(String(lr.auto_applied??0))} · Rollback: ${esc(String(lr.rolled_back??0))}${lr.overall_score!==undefined?` · Pontszám: ${esc(String(lr.overall_score))}/100`:''}${lr.error?`<br>${esc(lr.error)}`:''}`;
+  }
+  const box=document.getElementById('a13History');
+  const arr=(a13State.history||[]).slice().reverse();
+  if(!arr.length){box.innerHTML='<p class="hint">Még nincs Autopilot esemény.</p>';return}
+  box.innerHTML='';
+  arr.slice(0,40).forEach(x=>{
+    const d=document.createElement('div');d.className='a13-history';
+    d.innerHTML=`<b>${esc(x.event||'')}</b> · ${esc(x.message||'')}<div class="hint">${x.time?new Date(x.time).toLocaleString('hu-HU'):''}</div>`;
+    box.appendChild(d);
+  });
+}
+
+function a13Bind(){
+  document.getElementById('autopilotTab')?.addEventListener('click',()=>{ai9ShowOnly('autopilotView');a13Load()});
+  document.getElementById('a13Refresh')?.addEventListener('click',a13Load);
+  document.getElementById('a13Run')?.addEventListener('click',async()=>{
+    status('AI Autopilot fut...');
+    try{
+      const r=await api('/autopilot-run',{method:'POST',body:'{}'});
+      if(r.status==='error')status('Autopilot hiba: '+(r.error||''),true);
+      else status('Autopilot ciklus lefutott.');
+      await a13Load(); await e12Load(); await t11Load(); await m10Load();
+    }catch(e){status(e.message,true)}
+  });
+  document.getElementById('a13Save')?.addEventListener('click',async()=>{
+    try{
+      await api('/autopilot-settings',{method:'POST',body:JSON.stringify({
+        enabled:document.getElementById('a13Enabled').checked,
+        mode:document.getElementById('a13Mode').value,
+        auto_apply_low_risk:document.getElementById('a13AutoLow').checked,
+        rollback_on_score_drop:document.getElementById('a13RollbackDrop').checked,
+        max_score_drop:Number(document.getElementById('a13MaxDrop').value||3),
+        interval_minutes:Number(document.getElementById('a13Interval').value||60)
+      })});
+      status('Autopilot beállítások mentve.');await a13Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(a13Bind,450);
+
+
+let c14State={content:{},agents:{}};
+
+async function c14Load(){
+  try{
+    c14State=await api('/content-generator-state');
+    c14RenderMemory();c14RenderDrafts();ag14Render();
+    const sel=document.getElementById('c14Page');
+    if(sel){
+      const current=sel.value;
+      sel.innerHTML='<option value="">Nincs konkrét oldal</option>';
+      Object.entries(model?.pages||{}).forEach(([slug,p])=>{
+        const o=document.createElement('option');o.value=slug;o.textContent=p.name||slug;sel.appendChild(o);
+      });
+      sel.value=current;
+    }
+  }catch(e){status('AI Tartalomgenerátor hiba: '+e.message,true)}
+}
+function c14RenderMemory(){
+  const m=c14State.content?.brand_memory||{};
+  document.getElementById('c14Brand').value=m.brand_name||'';
+  document.getElementById('c14Tone').value=m.tone||'';
+  document.getElementById('c14Audience').value=m.audience||'';
+  document.getElementById('c14Must').value=(m.must_include||[]).join('\n');
+  document.getElementById('c14Avoid').value=(m.avoid||[]).join('\n');
+}
+function c14RenderDrafts(){
+  const box=document.getElementById('c14Drafts');if(!box)return;
+  const arr=(c14State.content?.drafts||[]).slice().reverse();
+  if(!arr.length){box.innerHTML='<p class="hint">Még nincs generált draft.</p>';return}
+  box.innerHTML='';
+  arr.slice(0,30).forEach(d=>{
+    const el=document.createElement('div');el.className='c14-draft';
+    const qa=d.quality_check;
+    el.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px"><strong>${esc(d.topic||'')}</strong><span class="t11-badge">${esc(d.kind||'')}</span></div>
+      <div class="hint">Állapot: ${esc(d.status||'draft')} · ${d.created_at?new Date(d.created_at).toLocaleString('hu-HU'):''}</div>
+      <details style="margin-top:8px"><summary>Draft megtekintése</summary><pre class="c14-pre">${esc(JSON.stringify(d.content||{},null,2))}</pre></details>
+      <div class="t11-actions">
+        <button class="secondary" data-c14-qa>${qa?.passed?'QA: rendben':'Minőségellenőrzés'}</button>
+        <button class="primary" data-c14-send ${d.status==='queued_to_webmaster'?'disabled':''}>${d.status==='queued_to_webmaster'?'AI Webmesternél':'Küldés az AI Webmesternek'}</button>
+      </div>`;
+    el.querySelector('[data-c14-qa]')?.addEventListener('click',async()=>{
+      try{await api('/content-qa',{method:'POST',body:JSON.stringify({id:d.id})});status('Minőségellenőrzés kész.');await c14Load()}
+      catch(e){status(e.message,true)}
+    });
+    el.querySelector('[data-c14-send]')?.addEventListener('click',async()=>{
+      try{await api('/content-send-webmaster',{method:'POST',body:JSON.stringify({id:d.id})});status('Draft átadva az AI Webmesternek.');await c14Load();await t11Load()}
+      catch(e){status(e.message,true)}
+    });
+    box.appendChild(el);
+  });
+}
+function ag14Render(){
+  const ag=c14State.agents||{};
+  const box=document.getElementById('ag14Agents');if(!box)return;
+  document.getElementById('ag14Mode').value=ag.orchestration?.mode||'approval';
+  box.innerHTML='';
+  (ag.agents||[]).forEach(a=>{
+    const d=document.createElement('div');d.className='ag14-card';
+    d.innerHTML=`<label class="checkline"><input type="checkbox" data-agent="${esc(a.id)}" ${a.enabled?'checked':''}> <b>${esc(a.name||a.id)}</b></label><div class="hint">${esc(a.role||'')}</div>`;
+    box.appendChild(d);
+  });
+}
+function c14Bind(){
+  document.getElementById('contentGenTab')?.addEventListener('click',()=>{ai9ShowOnly('contentGenView');c14Load()});
+  document.getElementById('agentsTab')?.addEventListener('click',()=>{ai9ShowOnly('agentsView');c14Load()});
+  document.getElementById('c14Refresh')?.addEventListener('click',c14Load);
+  document.getElementById('ag14Refresh')?.addEventListener('click',c14Load);
+
+  document.getElementById('c14Generate')?.addEventListener('click',async()=>{
+    const topic=(document.getElementById('c14Topic').value||'').trim();
+    if(!topic){status('A téma megadása kötelező.',true);return}
+    status('AI tartalom készül...');
+    try{
+      await api('/content-generate',{method:'POST',body:JSON.stringify({
+        kind:document.getElementById('c14Kind').value,
+        topic,
+        page:document.getElementById('c14Page').value
+      })});
+      status('AI draft elkészült.');await c14Load();
+    }catch(e){status(e.message,true)}
+  });
+
+  document.getElementById('c14SaveMemory')?.addEventListener('click',async()=>{
+    try{
+      await api('/brand-memory',{method:'POST',body:JSON.stringify({
+        brand_name:document.getElementById('c14Brand').value,
+        tone:document.getElementById('c14Tone').value,
+        audience:document.getElementById('c14Audience').value,
+        must_include:document.getElementById('c14Must').value.split('\n').map(x=>x.trim()).filter(Boolean),
+        avoid:document.getElementById('c14Avoid').value.split('\n').map(x=>x.trim()).filter(Boolean)
+      })});
+      status('Márkamemória mentve.');await c14Load();
+    }catch(e){status(e.message,true)}
+  });
+
+  document.getElementById('ag14Save')?.addEventListener('click',async()=>{
+    const enabled={};
+    document.querySelectorAll('[data-agent]').forEach(x=>enabled[x.dataset.agent]=x.checked);
+    try{
+      await api('/agents-settings',{method:'POST',body:JSON.stringify({enabled,mode:document.getElementById('ag14Mode').value})});
+      status('AI ügynök beállítások mentve.');await c14Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(c14Bind,500);
+
+
+let ceo15State={ceo:{}};
+
+async function ceo15Load(){
+  try{
+    ceo15State=await api('/ceo-state');
+    ceo15Render();
+  }catch(e){status('AI Cégvezető hiba: '+e.message,true)}
+}
+function ceo15Render(){
+  const c=ceo15State.ceo||{};
+  document.getElementById('ceo15Health').textContent=(c.health_score??'–')+(typeof c.health_score==='number'?'/100':'');
+  document.getElementById('ceo15Summary').textContent=c.executive_summary||'Még nincs vezetői ciklus.';
+  document.getElementById('ceo15Enabled').checked=!!c.enabled;
+  document.getElementById('ceo15Mode').value=c.mode||'approval';
+  document.getElementById('ceo15Goal').value=c.primary_goal||'';
+
+  const dbox=document.getElementById('ceo15Decisions');dbox.innerHTML='';
+  const decisions=c.decisions||c.priorities||[];
+  if(!decisions.length)dbox.innerHTML='<p class="hint">Még nincs vezetői döntés.</p>';
+  decisions.forEach(d=>{
+    const el=document.createElement('div');el.className='ceo15-decision';
+    el.innerHTML=`<div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(d.title||'Döntés')}</strong><span class="ceo15-owner">${esc(d.owner||'AI')}</span></div>
+      <div class="hint">${esc(d.priority||'medium')} · ${esc(d.reason||'')}</div>`;
+    dbox.appendChild(el);
+  });
+
+  const abox=document.getElementById('ceo15Assignments');abox.innerHTML='';
+  (c.agent_assignments||[]).forEach(x=>{
+    const el=document.createElement('div');el.className='ceo15-history';
+    el.innerHTML=`<b>${esc(x.agent||'AI')}</b><br><span class="hint">${esc(x.task||'')} · ${esc(x.priority||'')}</span>`;
+    abox.appendChild(el);
+  });
+  if(!(c.agent_assignments||[]).length)abox.innerHTML='<p class="hint">Még nincs kiosztott feladat.</p>';
+
+  const hbox=document.getElementById('ceo15History');hbox.innerHTML='';
+  (c.history||[]).slice().reverse().slice(0,30).forEach(x=>{
+    const el=document.createElement('div');el.className='ceo15-history';
+    el.innerHTML=`<b>${esc(x.event||'')}</b><div class="hint">${x.time?new Date(x.time).toLocaleString('hu-HU'):''} · pontszám: ${esc(String(x.health_score??''))}</div>`;
+    hbox.appendChild(el);
+  });
+  if(!(c.history||[]).length)hbox.innerHTML='<p class="hint">Még nincs vezetői napló.</p>';
+}
+function ceo15Bind(){
+  document.getElementById('ceoTab')?.addEventListener('click',()=>{ai9ShowOnly('ceoView');ceo15Load()});
+  document.getElementById('ceo15Refresh')?.addEventListener('click',ceo15Load);
+  document.getElementById('ceo15Run')?.addEventListener('click',async()=>{
+    status('AI Cégvezető elemzi a teljes rendszert...');
+    try{
+      await api('/ceo-run',{method:'POST',body:JSON.stringify({use_ai:true,create_tasks:true})});
+      status('Vezetői ciklus elkészült.');await ceo15Load();await t11Load();
+    }catch(e){
+      try{
+        await api('/ceo-run',{method:'POST',body:JSON.stringify({use_ai:false,create_tasks:true})});
+        status('Vezetői alap-elemzés elkészült.');await ceo15Load();await t11Load();
+      }catch(e2){status(e2.message,true)}
+    }
+  });
+  document.getElementById('ceo15Save')?.addEventListener('click',async()=>{
+    try{
+      await api('/ceo-settings',{method:'POST',body:JSON.stringify({
+        enabled:document.getElementById('ceo15Enabled').checked,
+        mode:document.getElementById('ceo15Mode').value,
+        primary_goal:document.getElementById('ceo15Goal').value
+      })});
+      status('Cégvezető beállítások mentve.');await ceo15Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(ceo15Bind,550);
+
+
+let bos16State={bos:{},weekly:{},memory:{}};
+
+async function bos16Load(){
+  try{
+    bos16State=await api('/bos-state');
+    bos16Render();
+  }catch(e){status('AI Business OS hiba: '+e.message,true)}
+}
+function bos16Render(){
+  const b=bos16State.bos||{};
+  document.getElementById('bos16Health').textContent=(b.system_health??'–')+(typeof b.system_health==='number'?'/100':'');
+  const comp=document.getElementById('bos16Components'); comp.innerHTML='';
+  Object.entries(b.components||{}).forEach(([k,v])=>{
+    const el=document.createElement('div');el.className='bos16-component';
+    el.innerHTML=`<span>${esc(k)}</span><strong>${esc(String(v))}</strong>`;
+    comp.appendChild(el);
+  });
+  const alerts=document.getElementById('bos16Alerts'); alerts.innerHTML='';
+  (b.alerts||[]).forEach(x=>{const d=document.createElement('div');d.className='bos16-alert';d.textContent=x;alerts.appendChild(d)});
+  if(!(b.alerts||[]).length)alerts.innerHTML='<p class="hint">Nincs aktív riasztás.</p>';
+  document.getElementById('bos16Next').textContent=b.next_action||'Nincs kijelölt következő lépés.';
+  const met=document.getElementById('bos16Metrics');met.innerHTML='';
+  Object.entries(b.metrics||{}).forEach(([k,v])=>{
+    const d=document.createElement('div');d.className='bos16-memory';d.innerHTML=`<b>${esc(k)}</b>: ${esc(String(v))}`;met.appendChild(d);
+  });
+  const w=bos16State.weekly||{};
+  document.getElementById('bos16WeeklyText').textContent=w.generated_at?JSON.stringify(w,null,2):'Még nincs jelentés.';
+  const mem=document.getElementById('bos16MemoryList');mem.innerHTML='';
+  const m=bos16State.memory||{};
+  const all=[
+    ...(m.wins||[]).map(x=>({...x,_type:'Siker'})),
+    ...(m.experiments||[]).map(x=>({...x,_type:'Kísérlet'})),
+    ...(m.lessons||[]).map(x=>({...x,_type:'Tanulság'}))
+  ].slice(-20).reverse();
+  all.forEach(x=>{
+    const d=document.createElement('div');d.className='bos16-memory';
+    d.innerHTML=`<b>${esc(x._type)}</b> · ${esc(x.text||'')}<div class="hint">${x.time?new Date(x.time).toLocaleString('hu-HU'):''}</div>`;
+    mem.appendChild(d);
+  });
+  if(!all.length)mem.innerHTML='<p class="hint">Még nincs üzleti memória.</p>';
+}
+function bos16Bind(){
+  document.getElementById('bosTab')?.addEventListener('click',()=>{ai9ShowOnly('bosView');bos16Load()});
+  document.getElementById('bos16Refresh')?.addEventListener('click',async()=>{
+    try{
+      await api('/bos-refresh',{method:'POST',body:'{}'});
+      status('Business OS frissítve.');await bos16Load();await ceo15Load();
+    }catch(e){status(e.message,true)}
+  });
+  document.getElementById('bos16Weekly')?.addEventListener('click',async()=>{
+    try{
+      await api('/weekly-report',{method:'POST',body:'{}'});
+      status('Heti vezetői jelentés elkészült.');await bos16Load();
+    }catch(e){status(e.message,true)}
+  });
+  document.getElementById('bos16MemorySave')?.addEventListener('click',async()=>{
+    const text=(document.getElementById('bos16MemoryText').value||'').trim();
+    if(!text){status('Írj be egy tanulságot vagy megfigyelést.',true);return}
+    try{
+      await api('/business-memory',{method:'POST',body:JSON.stringify({
+        text,bucket:document.getElementById('bos16MemoryBucket').value
+      })});
+      document.getElementById('bos16MemoryText').value='';
+      status('Üzleti memória mentve.');await bos16Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(bos16Bind,600);
+
+
+let bi17State={bi:{},goals:{goals:[]}};
+
+async function bi17Load(){
+  try{
+    bi17State=await api('/bi-state');
+    bi17Render();
+  }catch(e){status('AI Intelligence hiba: '+e.message,true)}
+}
+function bi17Set(id,v){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=(v??'–')+(typeof v==='number'?'/100':'');
+}
+function bi17Render(){
+  const b=bi17State.bi||{}, k=b.kpis||{};
+  bi17Set('bi17Health',k.system_health);
+  bi17Set('bi17Seo',k.seo);
+  bi17Set('bi17Content',k.content);
+  bi17Set('bi17Conv',k.conversion);
+  bi17Set('bi17Booking',k.booking_readiness);
+  document.getElementById('bi17Confidence').textContent=(b.confidence??0)+'/100';
+
+  const fc=document.getElementById('bi17Forecast');fc.innerHTML='';
+  Object.entries(b.forecast||{}).forEach(([key,val])=>{
+    const d=document.createElement('div');d.className='bos16-memory';
+    d.innerHTML=`<b>${esc(key.replaceAll('_',' '))}</b>: ${esc(String(val))}/100`;
+    fc.appendChild(d);
+  });
+
+  const trend=document.getElementById('bi17Trend');trend.innerHTML='';
+  const arr=(b.trends?.daily||[]).slice(-14);
+  if(!arr.length){trend.innerHTML='<span class="hint">Még nincs trendadat.</span>'}
+  arr.forEach(x=>{
+    const v=Number(x.kpis?.system_health||0);
+    const bar=document.createElement('div');bar.className='bi17-bar';
+    bar.style.height=Math.max(4,v)+'%';bar.title=`${v}/100`;
+    trend.appendChild(bar);
+  });
+
+  const risks=document.getElementById('bi17Risks');risks.innerHTML='';
+  (b.risks||[]).forEach(x=>{
+    const d=document.createElement('div');d.className='bi17-risk';
+    d.innerHTML=`<b>${esc(x.title||'')}</b><div class="hint">${esc(x.severity||'')} · ${esc(x.reason||'')}</div>`;
+    risks.appendChild(d);
+  });
+  if(!(b.risks||[]).length)risks.innerHTML='<p class="hint">Nincs jelentős aktív kockázat.</p>';
+
+  const opp=document.getElementById('bi17Opps');opp.innerHTML='';
+  (b.opportunities||[]).forEach(x=>{
+    const d=document.createElement('div');d.className='bi17-op';
+    d.innerHTML=`<b>${esc(x.title||'')}</b><div class="hint">${esc(x.impact||'')} · ${esc(x.reason||'')}</div>`;
+    opp.appendChild(d);
+  });
+  if(!(b.opportunities||[]).length)opp.innerHTML='<p class="hint">Nincs új lehetőség listázva.</p>';
+
+  const goals=document.getElementById('bi17Goals');goals.innerHTML='';
+  (bi17State.goals?.goals||[]).forEach(g=>{
+    const p=Math.max(0,Math.min(100,Number(g.progress||0)));
+    const d=document.createElement('div');d.className='bi17-goal';
+    d.innerHTML=`<b>${esc(g.title||'')}</b><div class="hint">${esc(g.horizon||'')} · ${esc(g.owner||'')}</div>
+      <div class="bi17-progress"><span style="width:${p}%"></span></div><div class="hint">${p}%</div>`;
+    goals.appendChild(d);
+  });
+
+  const agents=document.getElementById('bi17Agents');agents.innerHTML='';
+  (b.agent_performance||[]).forEach(a=>{
+    const d=document.createElement('div');d.className='bi17-agent';
+    d.innerHTML=`<b>${esc(a.name||a.id||'AI')}</b> · ${esc(String(a.score||0))}/100<div class="hint">feladat: ${esc(String(a.tasks||0))} · kész: ${esc(String(a.done||0))} · hiba: ${esc(String(a.errors||0))}</div>`;
+    agents.appendChild(d);
+  });
+
+  const ops=document.getElementById('bi17Ops');ops.innerHTML='';
+  const keys=['active_tasks','completion_rate','drafts','audit_issues','ready_execution','engagement_index','lead_readiness','execution_velocity'];
+  keys.forEach(key=>{
+    const d=document.createElement('div');d.className='bos16-memory';
+    d.innerHTML=`<b>${esc(key.replaceAll('_',' '))}</b>: ${esc(String(k[key]??0))}`;
+    ops.appendChild(d);
+  });
+}
+function bi17Bind(){
+  document.getElementById('biTab')?.addEventListener('click',()=>{ai9ShowOnly('biView');bi17Load()});
+  document.getElementById('bi17Refresh')?.addEventListener('click',async()=>{
+    try{
+      await api('/bi-refresh',{method:'POST',body:'{}'});
+      status('Business Intelligence frissítve.');
+      await bi17Load();await bos16Load();await ceo15Load();
+    }catch(e){status(e.message,true)}
+  });
+}
+setTimeout(bi17Bind,650);
+
+</script></body></html>

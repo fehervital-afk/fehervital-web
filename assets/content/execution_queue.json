@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "settings": {
+    "enabled": true,
+    "auto_mode": false,
+    "auto_apply_low_risk": false,
+    "create_backup_before_apply": true
+  },
+  "items": [],
+  "history": []
+}

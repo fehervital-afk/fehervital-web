@@ -1,0 +1,71 @@
+{
+  "last_run": "2026-08-07T18:16:00.586452+00:00",
+  "status": "ok",
+  "summary": {
+    "high": 0,
+    "medium": 10,
+    "low": 0
+  },
+  "items": [
+    {
+      "severity": "medium",
+      "page": "index",
+      "type": "seo_title",
+      "message": "Hiányzó SEO cím."
+    },
+    {
+      "severity": "medium",
+      "page": "index",
+      "type": "seo_description",
+      "message": "Hiányzó meta leírás."
+    },
+    {
+      "severity": "medium",
+      "page": "biorezonancia",
+      "type": "seo_title",
+      "message": "Hiányzó SEO cím."
+    },
+    {
+      "severity": "medium",
+      "page": "biorezonancia",
+      "type": "seo_description",
+      "message": "Hiányzó meta leírás."
+    },
+    {
+      "severity": "medium",
+      "page": "harmonyscan",
+      "type": "seo_title",
+      "message": "Hiányzó SEO cím."
+    },
+    {
+      "severity": "medium",
+      "page": "harmonyscan",
+      "type": "seo_description",
+      "message": "Hiányzó meta leírás."
+    },
+    {
+      "severity": "medium",
+      "page": "ai",
+      "type": "seo_title",
+      "message": "Hiányzó SEO cím."
+    },
+    {
+      "severity": "medium",
+      "page": "ai",
+      "type": "seo_description",
+      "message": "Hiányzó meta leírás."
+    },
+    {
+      "severity": "medium",
+      "page": "kapcsolat",
+      "type": "seo_title",
+      "message": "Hiányzó SEO cím."
+    },
+    {
+      "severity": "medium",
+      "page": "kapcsolat",
+      "type": "seo_description",
+      "message": "Hiányzó meta leírás."
+    }
+  ]
+}

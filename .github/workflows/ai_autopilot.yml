@@ -1,0 +1,36 @@
+name: Fehervital AI Autopilot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "11 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  autopilot:
+    if: ${{ vars.AI_AUTOPILOT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run AI Autopilot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: |
+          python scripts/autopilot.py --run --force
+
+      - name: Commit safe automatic changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "Fehervital AI Autopilot"
+          git config user.email "fehervital-ai-autopilot@users.noreply.github.com"
+          git add assets/content .local_backups || true
+          git commit -m "AI Autopilot safe update"
+          git push

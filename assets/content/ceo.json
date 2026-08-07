@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "enabled": false,
+  "mode": "approval",
+  "primary_goal": "Az időpontfoglalások és az organikus láthatóság növelése biztonságos, wellness szemléletű kommunikációval.",
+  "last_run": "2026-08-07T19:39:48.426058+00:00",
+  "health_score": 22,
+  "executive_summary": "A digitális rendszer aktuális egészségi pontszáma 22/100. SEO: 35/100, tartalom: 14/100, marketing: 17/100, konverzió: 30/100, technikai állapot: 30/100. 7 vezetői prioritás azonosítható.",
+  "priorities": [
+    {
+      "id": "61ed4148-d5ee-4394-8d7b-e91b9a12ad37",
+      "title": "Hiányzó SEO mezők kitöltése",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "5 oldal SEO címe vagy meta leírása hiányos.",
+      "task_prompt": "Ellenőrizd az összes oldalt, és készíts jogilag óvatos, magyar SEO címet és meta leírást a hiányos oldalakhoz. Ne módosíts semmit jóváhagyás nélkül."
+    },
+    {
+      "id": "5640f9e1-8f5b-41b1-bd45-3768f79031bb",
+      "title": "Erősebb időpontfoglalási útvonal",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "Kevés strukturált CTA blokk található.",
+      "task_prompt": "Javasolj a főoldalra és a legfontosabb szolgáltatási oldalakra rövid időpontfoglalási CTA blokkokat a Recepciós AI foglalási linkjére. Ne módosíts semmit jóváhagyás nélkül."
+    },
+    {
+      "id": "2ea299e6-73eb-497f-b5b5-10724fc1fb07",
+      "title": "Tartalmi mélység növelése",
+      "priority": "medium",
+      "owner": "AI Marketing",
+      "reason": "A teljes weboldal szövegmennyisége még kevés a szélesebb organikus lefedettséghez.",
+      "task_prompt": "Készíts tartalombővítési tervet a Fehérvitál számára: biorezonanciás állapotfelmérés, HarmonyScan, wellness technológiák és gyakori kérdések témában. Kerüld az orvosi ígéreteket."
+    },
+    {
+      "id": "6faef7c6-a6b4-44c0-8f7f-b13016d8c303",
+      "title": "GYIK bővítése",
+      "priority": "medium",
+      "owner": "AI Marketing",
+      "reason": "Kevés strukturált GYIK elem található.",
+      "task_prompt": "Javasolj legalább 6 közérthető GYIK kérdés-választ a látogatók tipikus kérdéseire, wellness és tájékoztató megfogalmazással."
+    },
+    {
+      "id": "4c76dd9b-071a-47a2-a826-d1c0f8a8ffc9",
+      "title": "Audit hibák rendezése",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "Az audit 0 magas és 10 közepes súlyú problémát talált.",
+      "task_prompt": "Vizsgáld át az aktuális AI audit hibáit, és készíts biztonságos javítási tervet. Ne törölj tartalmat, és ne módosíts kapcsolati adatot jóváhagyás nélkül."
+    },
+    {
+      "id": "3fbf34c2-0b97-4c0d-b91b-4bd5751ecfe3",
+      "title": "Közepes audit hibák ütemezett rendezése",
+      "priority": "medium",
+      "owner": "AI Webmaster",
+      "reason": "10 közepes súlyú audit eltérés található.",
+      "task_prompt": "Rangsorold a közepes audit hibákat és készíts biztonságos javítási tervet."
+    },
+    {
+      "id": "aa377686-cf9a-4a1a-9b09-8c4519404980",
+      "title": "Tartalom draftok feldolgozása",
+      "priority": "medium",
+      "owner": "AI Szövegíró",
+      "reason": "1 draft vár feldolgozásra.",
+      "task_prompt": "Ellenőrizd és készítsd elő publikálásra a függő tartalom draftokat."
+    }
+  ],
+  "decisions": [
+    {
+      "title": "Hiányzó SEO mezők kitöltése",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "5 oldal SEO címe vagy meta leírása hiányos.",
+      "task_prompt": "Ellenőrizd az összes oldalt, és készíts jogilag óvatos, magyar SEO címet és meta leírást a hiányos oldalakhoz. Ne módosíts semmit jóváhagyás nélkül."
+    },
+    {
+      "title": "Erősebb időpontfoglalási útvonal",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "Kevés strukturált CTA blokk található.",
+      "task_prompt": "Javasolj a főoldalra és a legfontosabb szolgáltatási oldalakra rövid időpontfoglalási CTA blokkokat a Recepciós AI foglalási linkjére. Ne módosíts semmit jóváhagyás nélkül."
+    },
+    {
+      "title": "Tartalmi mélység növelése",
+      "priority": "medium",
+      "owner": "AI Marketing",
+      "reason": "A teljes weboldal szövegmennyisége még kevés a szélesebb organikus lefedettséghez.",
+      "task_prompt": "Készíts tartalombővítési tervet a Fehérvitál számára: biorezonanciás állapotfelmérés, HarmonyScan, wellness technológiák és gyakori kérdések témában. Kerüld az orvosi ígéreteket."
+    },
+    {
+      "title": "GYIK bővítése",
+      "priority": "medium",
+      "owner": "AI Marketing",
+      "reason": "Kevés strukturált GYIK elem található.",
+      "task_prompt": "Javasolj legalább 6 közérthető GYIK kérdés-választ a látogatók tipikus kérdéseire, wellness és tájékoztató megfogalmazással."
+    },
+    {
+      "title": "Audit hibák rendezése",
+      "priority": "high",
+      "owner": "AI Marketing",
+      "reason": "Az audit 0 magas és 10 közepes súlyú problémát talált.",
+      "task_prompt": "Vizsgáld át az aktuális AI audit hibáit, és készíts biztonságos javítási tervet. Ne törölj tartalmat, és ne módosíts kapcsolati adatot jóváhagyás nélkül."
+    }
+  ],
+  "agent_assignments": [
+    {
+      "agent": "AI Marketing",
+      "task": "Hiányzó SEO mezők kitöltése",
+      "priority": "high"
+    },
+    {
+      "agent": "AI Marketing",
+      "task": "Erősebb időpontfoglalási útvonal",
+      "priority": "high"
+    },
+    {
+      "agent": "AI Marketing",
+      "task": "Tartalmi mélység növelése",
+      "priority": "medium"
+    },
+    {
+      "agent": "AI Marketing",
+      "task": "GYIK bővítése",
+      "priority": "medium"
+    },
+    {
+      "agent": "AI Marketing",
+      "task": "Audit hibák rendezése",
+      "priority": "high"
+    }
+  ],
+  "history": [
+    {
+      "time": "2026-08-07T19:28:49.215593+00:00",
+      "event": "ceo_run",
+      "health_score": 0,
+      "decisions": 5
+    },
+    {
+      "time": "2026-08-07T19:39:48.427630+00:00",
+      "event": "ceo_run",
+      "health_score": 22,
+      "components": {
+        "seo": 35,
+        "content": 14,
+        "marketing": 17,
+        "conversion": 30,
+        "technical": 30,
+        "automation": 45,
+        "agents": 100
+      },
+      "decisions": 5
+    }
+  ]
+}

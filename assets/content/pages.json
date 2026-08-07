@@ -1,0 +1,427 @@
+{
+  "version": 17,
+  "pages": {
+    "index": {
+      "title": "Főoldal",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "hero_eyebrow",
+          "label": "Főoldal / felső kis cím",
+          "value": "Fehérvitál Egészségpont"
+        },
+        {
+          "key": "hero_title",
+          "label": "Főoldal / főcím",
+          "value": "Ingyenes biorezonanciás állapotfelmérés"
+        },
+        {
+          "key": "hero_lead",
+          "label": "Főoldal / bevezető",
+          "value": "Tájékoztató jellegű, wellness célú állapotfelmérés több mint 170 biofizikai paraméter alapján, személyes ismertetéssel."
+        },
+        {
+          "key": "hero_note",
+          "label": "Főoldal / jogi megjegyzés",
+          "value": "A felmérés nem minősül orvosi diagnózisnak és nem helyettesít orvosi vizsgálatot."
+        },
+        {
+          "key": "hero_card_title",
+          "label": "Főoldal / jobb oldali cím",
+          "value": "Gyors. Kíméletes. Tájékoztató."
+        },
+        {
+          "key": "hero_card_text",
+          "label": "Főoldal / jobb oldali szöveg",
+          "value": "Az eredményeket közérthetően átbeszéljük, és igény szerint bemutatjuk a kapcsolódó wellness technológiákat."
+        },
+        {
+          "key": "contains_eyebrow",
+          "label": "Mit tartalmaz? / kis cím",
+          "value": "Mit tartalmaz?"
+        },
+        {
+          "key": "contains_title",
+          "label": "Mit tartalmaz? / cím",
+          "value": "Átfogó energetikai állapotkép"
+        },
+        {
+          "key": "card1_title",
+          "label": "Kártya 1 / cím",
+          "value": "Vitaminok és ásványi anyagok"
+        },
+        {
+          "key": "card1_text",
+          "label": "Kártya 1 / szöveg",
+          "value": "Tájékoztató jellegű energetikai eltérések áttekintése."
+        },
+        {
+          "key": "card2_title",
+          "label": "Kártya 2 / cím",
+          "value": "Emésztőrendszer"
+        },
+        {
+          "key": "card2_text",
+          "label": "Kártya 2 / szöveg",
+          "value": "Kapcsolódó biofizikai paraméterek összefoglalása."
+        },
+        {
+          "key": "card3_title",
+          "label": "Kártya 3 / cím",
+          "value": "Szív- és érrendszer"
+        },
+        {
+          "key": "card3_text",
+          "label": "Kártya 3 / szöveg",
+          "value": "Wellness célú állapotjelző paraméterek bemutatása."
+        },
+        {
+          "key": "card4_title",
+          "label": "Kártya 4 / cím",
+          "value": "Hormonális egyensúly"
+        },
+        {
+          "key": "card4_text",
+          "label": "Kártya 4 / szöveg",
+          "value": "Energetikai mintázatok tájékoztató értelmezése."
+        },
+        {
+          "key": "card5_title",
+          "label": "Kártya 5 / cím",
+          "value": "Immunrendszer"
+        },
+        {
+          "key": "card5_text",
+          "label": "Kártya 5 / szöveg",
+          "value": "Kapcsolódó paraméterek áttekintése közérthetően."
+        },
+        {
+          "key": "card6_title",
+          "label": "Kártya 6 / cím",
+          "value": "Életmód"
+        },
+        {
+          "key": "card6_text",
+          "label": "Kártya 6 / szöveg",
+          "value": "Általános, nem orvosi életmódbeli javaslatok az eredmények mellé."
+        },
+        {
+          "key": "steps_eyebrow",
+          "label": "Hogyan zajlik? / kis cím",
+          "value": "Hogyan zajlik?"
+        },
+        {
+          "key": "steps_title",
+          "label": "Hogyan zajlik? / cím",
+          "value": "Négy egyszerű lépés"
+        },
+        {
+          "key": "step1_title",
+          "label": "1. lépés / cím",
+          "value": "Időpontfoglalás"
+        },
+        {
+          "key": "step1_text",
+          "label": "1. lépés / szöveg",
+          "value": "Válasszon megfelelő időpontot online."
+        },
+        {
+          "key": "step2_title",
+          "label": "2. lépés / cím",
+          "value": "Állapotfelmérés"
+        },
+        {
+          "key": "step2_text",
+          "label": "2. lépés / szöveg",
+          "value": "Nem invazív, kényelmes mérés."
+        },
+        {
+          "key": "step3_title",
+          "label": "3. lépés / cím",
+          "value": "Eredmények ismertetése"
+        },
+        {
+          "key": "step3_text",
+          "label": "3. lépés / szöveg",
+          "value": "Áttekintjük a kiemelt eltéréseket."
+        },
+        {
+          "key": "step4_title",
+          "label": "4. lépés / cím",
+          "value": "Wellness lehetőségek"
+        },
+        {
+          "key": "step4_text",
+          "label": "4. lépés / szöveg",
+          "value": "Igény szerint HarmonyScan és más technológiák bemutatása."
+        },
+        {
+          "key": "harmony_eyebrow",
+          "label": "HarmonyScan blokk / kis cím",
+          "value": "HarmonyScan"
+        },
+        {
+          "key": "harmony_title",
+          "label": "HarmonyScan blokk / cím",
+          "value": "Frekvencia-alapú wellness technológia"
+        },
+        {
+          "key": "harmony_text",
+          "label": "HarmonyScan blokk / szöveg",
+          "value": "A HarmonyScan külön oldalon mutatja be a rendszer működését, lehetőségeit és a kapcsolódó programokat."
+        },
+        {
+          "key": "ai_eyebrow",
+          "label": "AI blokk / kis cím",
+          "value": "Fehérvitál AI"
+        },
+        {
+          "key": "ai_title",
+          "label": "AI blokk / cím",
+          "value": "Digitális tájékoztató asszisztens"
+        },
+        {
+          "key": "ai_text",
+          "label": "AI blokk / szöveg",
+          "value": "Segítség a szolgáltatás megismerésében, gyakori kérdésekben és az időpontfoglalás elindításában."
+        },
+        {
+          "key": "cta_eyebrow",
+          "label": "Alsó CTA / kis cím",
+          "value": "Következő lépés"
+        },
+        {
+          "key": "cta_title",
+          "label": "Alsó CTA / cím",
+          "value": "Foglaljon időpontot az ingyenes állapotfelmérésre"
+        }
+      ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "biorezonancia": {
+      "title": "Biorezonancia",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Felső kis cím",
+          "value": "Wellness állapotfelmérés"
+        },
+        {
+          "key": "title",
+          "label": "Oldalcím",
+          "value": "Biorezonanciás állapotfelmérés"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "A Fehérvitál állapotfelmérése wellness célú, tájékoztató jellegű biofizikai mérés."
+        },
+        {
+          "key": "h2_1",
+          "label": "1. szakasz / cím",
+          "value": "Mit mutat meg?"
+        },
+        {
+          "key": "p_1",
+          "label": "1. szakasz / szöveg",
+          "value": "A mérés több mint 170 paraméter energetikai mintázatát tekinti át. Az eredményeket közérthetően ismertetjük."
+        },
+        {
+          "key": "important",
+          "label": "Fontos tájékoztatás",
+          "value": "Fontos: az állapotfelmérés nem orvosi diagnózis, nem alkalmas betegségek megállapítására és nem helyettesít orvosi vizsgálatot."
+        },
+        {
+          "key": "h2_2",
+          "label": "2. szakasz / cím",
+          "value": "Hogyan zajlik?"
+        },
+        {
+          "key": "p_2",
+          "label": "2. szakasz / szöveg",
+          "value": "Időpontfoglalás után helyszíni mérés történik, majd átbeszéljük az eredményeket és általános életmódbeli szempontokat."
+        }
+      ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "harmonyscan": {
+      "title": "HarmonyScan",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Felső kis cím",
+          "value": "Wellness technológia"
+        },
+        {
+          "key": "title",
+          "label": "Oldalcím",
+          "value": "HarmonyScan"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "A HarmonyScan a Fehérvitál frekvencia-alapú wellness megoldásainak bemutatófelülete."
+        },
+        {
+          "key": "h2_1",
+          "label": "1. szakasz / cím",
+          "value": "Mit talál majd itt?"
+        },
+        {
+          "key": "p_1",
+          "label": "1. szakasz / szöveg",
+          "value": "A végleges oldalon bemutatjuk a HarmonyScan működését, a programokat, képeket, videókat és a használathoz kapcsolódó tájékoztatókat."
+        },
+        {
+          "key": "info",
+          "label": "Információs doboz",
+          "value": "Ez az oldal jelenleg alapverzió. A SITE123 jelenlegi HarmonyScan tartalmát a következő fejlesztési körben emeljük át."
+        }
+      ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "ai": {
+      "title": "Fehérvitál AI",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Felső kis cím",
+          "value": "Digitális asszisztens"
+        },
+        {
+          "key": "title",
+          "label": "Oldalcím",
+          "value": "Fehérvitál AI"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "A Fehérvitál AI segít eligazodni a szolgáltatással, a HarmonyScan rendszerrel és az időpontfoglalással kapcsolatos kérdésekben."
+        },
+        {
+          "key": "h2_1",
+          "label": "1. szakasz / cím",
+          "value": "Integráció"
+        },
+        {
+          "key": "p_1",
+          "label": "1. szakasz / szöveg",
+          "value": "A végleges változatot a Recepciós AI szolgáltatói AI-jával kapcsoljuk össze, hogy egyetlen karbantartható tudásréteg szolgálja ki a válaszokat."
+        },
+        {
+          "key": "info",
+          "label": "Információs doboz",
+          "value": "Az AI nem ad orvosi diagnózist és nem helyettesít egészségügyi szakembert."
+        }
+      ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "kapcsolat": {
+      "title": "Kapcsolat",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Felső kis cím",
+          "value": "Fehérvitál Egészségpont"
+        },
+        {
+          "key": "title",
+          "label": "Oldalcím",
+          "value": "Kapcsolat"
+        },
+        {
+          "key": "h2_1",
+          "label": "Szakasz címe",
+          "value": "Elérhetőség"
+        },
+        {
+          "key": "address",
+          "label": "Cím",
+          "value": "Cím: 8000 Székesfehérvár, Távirda u. 25."
+        },
+        {
+          "key": "phone",
+          "label": "Telefon",
+          "value": "Telefon: +36 30 335 3536"
+        },
+        {
+          "key": "email",
+          "label": "E-mail",
+          "value": "E-mail: fehervital@fehervital.com"
+        },
+        {
+          "key": "note",
+          "label": "Megjegyzés",
+          "value": "A térképet és a végleges nyitvatartást a következő körben illesztjük be."
+        }
+      ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    }
+  },
+  "site": {
+    "logo_text": "Fehérvitál",
+    "logo_image": "",
+    "favicon": "",
+    "hero_media": {
+      "type": "none",
+      "src": "",
+      "alt": "",
+      "position": "right"
+    },
+    "gallery": [],
+    "design": {
+      "primary": "#2f7a57",
+      "secondary": "#225f43",
+      "background": "#f7faf8",
+      "text": "#173126",
+      "radius": 18,
+      "shadow": "soft",
+      "font": "system"
+    },
+    "contact": {
+      "phone": "+36 30 335 3536",
+      "email": "fehervital@fehervital.com",
+      "address": "8000 Székesfehérvár, Távirda u. 25.",
+      "hours": "",
+      "map_url": "",
+      "facebook": "",
+      "instagram": "",
+      "tiktok": "",
+      "youtube": ""
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "enabled": true,
+  "agents": [
+    {
+      "id": "webmaster",
+      "name": "AI Webmaster",
+      "role": "weboldal audit, szerkezet és hibák",
+      "enabled": true
+    },
+    {
+      "id": "copywriter",
+      "name": "AI Szövegíró",
+      "role": "weboldal- és kampányszövegek",
+      "enabled": true
+    },
+    {
+      "id": "seo",
+      "name": "AI SEO",
+      "role": "SEO címek, meta leírások, kulcsszavak",
+      "enabled": true
+    },
+    {
+      "id": "marketing",
+      "name": "AI Marketing",
+      "role": "kampány- és tartalomötletek",
+      "enabled": true
+    },
+    {
+      "id": "visual",
+      "name": "AI Grafikus",
+      "role": "képgeneráló promptok és vizuális briefek",
+      "enabled": true
+    },
+    {
+      "id": "qa",
+      "name": "AI Minőségellenőr",
+      "role": "jogi, tartalmi, szerkezeti és minőségi ellenőrzés",
+      "enabled": true
+    },
+    {
+      "id": "publisher",
+      "name": "AI Publikáló",
+      "role": "jóváhagyott tartalom átadása a végrehajtó láncnak",
+      "enabled": true
+    }
+  ],
+  "orchestration": {
+    "mode": "approval",
+    "default_flow": [
+      "copywriter",
+      "seo",
+      "qa",
+      "publisher"
+    ]
+  },
+  "history": []
+}

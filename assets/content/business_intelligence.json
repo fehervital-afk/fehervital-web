@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "last_refresh": "2026-08-07T20:07:20.690078+00:00",
+  "kpis": {
+    "seo": 35.0,
+    "content": 14.0,
+    "conversion": 30.0,
+    "technical": 30.0,
+    "marketing": 17.0,
+    "system_health": 22.0,
+    "engagement_index": 20.6,
+    "lead_readiness": 26.8,
+    "booking_readiness": 36.0,
+    "execution_velocity": 20.4,
+    "active_tasks": 5,
+    "completion_rate": 0,
+    "drafts": 1,
+    "audit_issues": 10,
+    "ready_execution": 0
+  },
+  "trends": {
+    "daily": [
+      {
+        "time": "2026-08-07T20:07:20.690078+00:00",
+        "kpis": {
+          "seo": 35.0,
+          "content": 14.0,
+          "conversion": 30.0,
+          "technical": 30.0,
+          "marketing": 17.0,
+          "system_health": 22.0,
+          "engagement_index": 20.6,
+          "lead_readiness": 26.8,
+          "booking_readiness": 36.0,
+          "execution_velocity": 20.4,
+          "active_tasks": 5,
+          "completion_rate": 0,
+          "drafts": 1,
+          "audit_issues": 10,
+          "ready_execution": 0
+        }
+      }
+    ],
+    "weekly": [
+      {
+        "time": "2026-08-07T20:07:20.690078+00:00",
+        "kpis": {
+          "seo": 35.0,
+          "content": 14.0,
+          "conversion": 30.0,
+          "technical": 30.0,
+          "marketing": 17.0,
+          "system_health": 22.0,
+          "engagement_index": 20.6,
+          "lead_readiness": 26.8,
+          "booking_readiness": 36.0,
+          "execution_velocity": 20.4,
+          "active_tasks": 5,
+          "completion_rate": 0,
+          "drafts": 1,
+          "audit_issues": 10,
+          "ready_execution": 0
+        }
+      }
+    ],
+    "monthly": [
+      {
+        "time": "2026-08-07T20:07:20.690078+00:00",
+        "kpis": {
+          "seo": 35.0,
+          "content": 14.0,
+          "conversion": 30.0,
+          "technical": 30.0,
+          "marketing": 17.0,
+          "system_health": 22.0,
+          "engagement_index": 20.6,
+          "lead_readiness": 26.8,
+          "booking_readiness": 36.0,
+          "execution_velocity": 20.4,
+          "active_tasks": 5,
+          "completion_rate": 0,
+          "drafts": 1,
+          "audit_issues": 10,
+          "ready_execution": 0
+        }
+      }
+    ]
+  },
+  "forecast": {
+    "seo_30d": 35.0,
+    "content_30d": 14.0,
+    "conversion_30d": 30.0,
+    "marketing_30d": 17.0,
+    "booking_readiness_30d": 36.0
+  },
+  "confidence": 75.0,
+  "risks": [
+    {
+      "severity": "high",
+      "title": "Gyenge SEO alap",
+      "reason": "SEO pontszám: 35.0/100."
+    },
+    {
+      "severity": "medium",
+      "title": "Konverziós útvonal fejlesztendő",
+      "reason": "Konverziós pontszám: 30.0/100."
+    }
+  ],
+  "opportunities": [
+    {
+      "impact": "high",
+      "title": "Tartalmi lefedettség növelése",
+      "reason": "Új edukációs oldalak és GYIK-ek emelhetik az organikus lefedettséget."
+    },
+    {
+      "impact": "high",
+      "title": "SEO mezők és belső linkelés",
+      "reason": "A keresési láthatóság javítható."
+    },
+    {
+      "impact": "high",
+      "title": "Foglalási CTA-k optimalizálása",
+      "reason": "A fontos oldalakon erősebb foglalási útvonal szükséges."
+    },
+    {
+      "impact": "medium",
+      "title": "Meglévő draftok gyorsítása",
+      "reason": "1 draft áll rendelkezésre."
+    },
+    {
+      "impact": "medium",
+      "title": "AI végrehajtási sebesség javítása",
+      "reason": "A feladatok nagyobb részét érdemes lezárni vagy priorizálni."
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "title": "Gyenge SEO alap",
+      "action": "Készíts javítási tervet és add át az AI Feladatkezelőnek."
+    },
+    {
+      "priority": "medium",
+      "title": "Konverziós útvonal fejlesztendő",
+      "action": "Készíts javítási tervet és add át az AI Feladatkezelőnek."
+    },
+    {
+      "priority": "medium",
+      "title": "Tartalmi lefedettség növelése",
+      "action": "Készíts konkrét növekedési feladatot az AI Cégvezető számára."
+    },
+    {
+      "priority": "medium",
+      "title": "SEO mezők és belső linkelés",
+      "action": "Készíts konkrét növekedési feladatot az AI Cégvezető számára."
+    },
+    {
+      "priority": "medium",
+      "title": "Foglalási CTA-k optimalizálása",
+      "action": "Készíts konkrét növekedési feladatot az AI Cégvezető számára."
+    }
+  ],
+  "agent_performance": [
+    {
+      "id": "webmaster",
+      "name": "AI Webmaster",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "copywriter",
+      "name": "AI Szövegíró",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "seo",
+      "name": "AI SEO",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "marketing",
+      "name": "AI Marketing",
+      "enabled": true,
+      "tasks": 5,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "visual",
+      "name": "AI Grafikus",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "qa",
+      "name": "AI Minőségellenőr",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    },
+    {
+      "id": "publisher",
+      "name": "AI Publikáló",
+      "enabled": true,
+      "tasks": 0,
+      "done": 0,
+      "errors": 0,
+      "score": 65.0
+    }
+  ],
+  "history": [
+    {
+      "time": "2026-08-07T20:07:20.690078+00:00",
+      "kpis": {
+        "seo": 35.0,
+        "content": 14.0,
+        "conversion": 30.0,
+        "technical": 30.0,
+        "marketing": 17.0,
+        "system_health": 22.0,
+        "engagement_index": 20.6,
+        "lead_readiness": 26.8,
+        "booking_readiness": 36.0,
+        "execution_velocity": 20.4,
+        "active_tasks": 5,
+        "completion_rate": 0,
+        "drafts": 1,
+        "audit_issues": 10,
+        "ready_execution": 0
+      }
+    }
+  ]
+}

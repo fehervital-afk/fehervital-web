@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "brand_memory": {
+    "brand_name": "Fehérvitál Egészségpont",
+    "tone": "közérthető, megnyugtató, professzionális, wellness szemléletű",
+    "audience": "elsősorban 40+ érdeklődők",
+    "must_include": [
+      "tájékoztató jelleg",
+      "wellness cél",
+      "közérthető megfogalmazás",
+      "időpontfoglalási CTA, ahol indokolt"
+    ],
+    "avoid": [
+      "orvosi diagnózis",
+      "gyógyulási ígéret",
+      "betegségkezelési állítás",
+      "garantált eredmény"
+    ]
+  },
+  "drafts": [
+    {
+      "id": "e4a34a4b-7c38-47f7-80fb-e7bba0389acc",
+      "created_at": "2026-08-07T18:26:47.312871+00:00",
+      "kind": "faq",
+      "topic": "HarmonyScan",
+      "page_slug": null,
+      "content": {
+        "title": "HarmonyScan – gyakori kérdések",
+        "body": [
+          {
+            "q": "Mi az a HarmonyScan?",
+            "a": "A HarmonyScan a Fehérvitál Egészségpont oldalán tájékoztató, wellness szemléletű megközelítésben jelenik meg."
+          },
+          {
+            "q": "Mennyi időt érdemes rászánni?",
+            "a": "Az időtartam az adott szolgáltatástól és bemutatótól függ; a pontos részleteket az időpontfoglalásnál érdemes ellenőrizni."
+          },
+          {
+            "q": "Helyettesít orvosi vizsgálatot?",
+            "a": "Nem. A tájékoztató wellness tartalom nem minősül orvosi diagnózisnak és nem helyettesít orvosi vizsgálatot."
+          }
+        ]
+      },
+      "status": "draft",
+      "agent_flow": [
+        "copywriter",
+        "seo",
+        "qa"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "time": "2026-08-07T18:26:47.312887+00:00",
+      "event": "generated",
+      "draft_id": "e4a34a4b-7c38-47f7-80fb-e7bba0389acc",
+      "kind": "faq",
+      "topic": "HarmonyScan"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "enabled": false,
+  "mode": "approval",
+  "model": "gpt-5",
+  "language": "hu",
+  "brand_rules": [
+    "A Fehérvitál kommunikációja tájékoztató és wellness jellegű.",
+    "Ne állítson fel orvosi diagnózist, és ne ígérjen gyógyulást vagy betegségek kezelését.",
+    "A szöveg legyen közérthető, nyugodt és professzionális.",
+    "Az időpontfoglalási CTA a Recepciós AI Fehérvitál oldalára mutasson."
+  ],
+  "booking_url": "https://recepciosai.hu/b/fehervital-egeszsegpont",
+  "safe_auto_actions": [
+    "seo_metadata",
+    "broken_link_audit",
+    "missing_alt_text",
+    "content_formatting",
+    "internal_linking"
+  ],
+  "approval_actions": [
+    "new_page",
+    "major_copy_rewrite",
+    "delete_content",
+    "change_contact_data",
+    "change_booking_url",
+    "medical_or_health_claim_change"
+  ],
+  "schedule": {
+    "audit_hourly": true,
+    "seo_daily": true,
+    "content_weekly": false
+  }
+}

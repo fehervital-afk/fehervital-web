@@ -1,0 +1,36 @@
+name: Fehervital AI Marketing Manager
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 5 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  marketing-manager:
+    if: ${{ vars.AI_MARKETING_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run marketing analysis
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: |
+          python scripts/marketing_manager.py --analyze
+
+      - name: Commit marketing intelligence
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "Fehervital AI Marketing Manager"
+          git config user.email "fehervital-ai-marketing@users.noreply.github.com"
+          git add assets/content/marketing.json assets/content/ai_tasks.json
+          git commit -m "AI marketing manager daily analysis"
+          git push

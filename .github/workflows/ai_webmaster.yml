@@ -1,0 +1,36 @@
+name: Fehervital AI Webmaster
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  ai-webmaster:
+    if: ${{ vars.AI_WEBMASTER_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run AI webmaster
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: |
+          python scripts/ai_webmaster.py --audit --process
+
+      - name: Commit automatic changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "Fehervital AI Webmaster"
+          git config user.email "fehervital-ai-webmaster@users.noreply.github.com"
+          git add assets/content
+          git commit -m "AI webmaster automated update"
+          git push

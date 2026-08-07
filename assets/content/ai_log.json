@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "time": "2026-08-07T17:10:26.797994+00:00",
+      "event": "audit",
+      "message": "Automatikus audit lefutott: 10 észrevétel.",
+      "details": {
+        "high": 0,
+        "medium": 10,
+        "low": 0
+      }
+    },
+    {
+      "time": "2026-08-07T17:12:34.164748+00:00",
+      "event": "audit",
+      "message": "Automatikus audit lefutott: 10 észrevétel.",
+      "details": {
+        "high": 0,
+        "medium": 10,
+        "low": 0
+      }
+    },
+    {
+      "time": "2026-08-07T18:16:00.586825+00:00",
+      "event": "audit",
+      "message": "Automatikus audit lefutott: 10 észrevétel.",
+      "details": {
+        "high": 0,
+        "medium": 10,
+        "low": 0
+      }
+    }
+  ]
+}

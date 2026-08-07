@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "goals": [
+    {
+      "id": "booking-growth",
+      "title": "Időpontfoglalások növelése",
+      "horizon": "short",
+      "target": 20,
+      "unit": "%",
+      "progress": 36.0,
+      "status": "active",
+      "owner": "AI Cégvezető"
+    },
+    {
+      "id": "organic-growth",
+      "title": "Organikus láthatóság növelése",
+      "horizon": "medium",
+      "target": 25,
+      "unit": "%",
+      "progress": 35.0,
+      "status": "active",
+      "owner": "AI SEO"
+    },
+    {
+      "id": "content-coverage",
+      "title": "Tartalmi lefedettség bővítése",
+      "horizon": "medium",
+      "target": 10,
+      "unit": "új tartalom",
+      "progress": 14.0,
+      "status": "active",
+      "owner": "AI Tartalom"
+    }
+  ],
+  "updated_at": "2026-08-07T20:07:20.690346+00:00"
+}

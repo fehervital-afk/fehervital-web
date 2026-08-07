@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "generated_at": "2026-08-07T19:39:54.347093+00:00",
+  "summary": "A digitális rendszer aktuális egészségi pontszáma 22/100. SEO: 35/100, tartalom: 14/100, marketing: 17/100, konverzió: 30/100, technikai állapot: 30/100. 7 vezetői prioritás azonosítható.",
+  "metrics": {
+    "system_health": 22,
+    "seo": 35,
+    "content": 14,
+    "marketing": 17,
+    "conversion": 30,
+    "technical": 30,
+    "automation": 45,
+    "agents": 100,
+    "completed_tasks": 0,
+    "open_tasks": 5
+  },
+  "completed": [],
+  "open_items": [
+    {
+      "prompt": "Ellenőrizd az összes oldalt, és készíts jogilag óvatos, magyar SEO címet és meta leírást a hiányos oldalakhoz. Ne módosíts semmit jóváhagyás nélkül.",
+      "priority": "high"
+    },
+    {
+      "prompt": "Javasolj a főoldalra és a legfontosabb szolgáltatási oldalakra rövid időpontfoglalási CTA blokkokat a Recepciós AI foglalási linkjére. Ne módosíts semmit jóváhagyás nélkül.",
+      "priority": "high"
+    },
+    {
+      "prompt": "Készíts tartalombővítési tervet a Fehérvitál számára: biorezonanciás állapotfelmérés, HarmonyScan, wellness technológiák és gyakori kérdések témában. Kerüld az orvosi ígéreteket.",
+      "priority": "medium"
+    },
+    {
+      "prompt": "Javasolj legalább 6 közérthető GYIK kérdés-választ a látogatók tipikus kérdéseire, wellness és tájékoztató megfogalmazással.",
+      "priority": "medium"
+    },
+    {
+      "prompt": "Vizsgáld át az aktuális AI audit hibáit, és készíts biztonságos javítási tervet. Ne törölj tartalmat, és ne módosíts kapcsolati adatot jóváhagyás nélkül.",
+      "priority": "high"
+    }
+  ],
+  "next_week": [
+    "Hiányzó SEO mezők kitöltése",
+    "Erősebb időpontfoglalási útvonal",
+    "Tartalmi mélység növelése",
+    "GYIK bővítése",
+    "Audit hibák rendezése"
+  ]
+}

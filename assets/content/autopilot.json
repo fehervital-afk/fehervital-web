@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "enabled": false,
+  "mode": "observe",
+  "interval_minutes": 60,
+  "auto_apply_low_risk": false,
+  "rollback_on_score_drop": true,
+  "max_score_drop": 3,
+  "last_run": "2026-08-07T18:15:56.826679+00:00",
+  "last_result": {
+    "status": "ok",
+    "synced": 0,
+    "auto_applied": 0,
+    "rolled_back": 0,
+    "overall_score": 17
+  },
+  "stats": {
+    "runs": 1,
+    "synced": 0,
+    "auto_applied": 0,
+    "rolled_back": 0,
+    "errors": 0
+  },
+  "history": [
+    {
+      "time": "2026-08-07T18:16:06.958616+00:00",
+      "event": "run",
+      "message": "Autopilot ciklus sikeresen lefutott.",
+      "details": {
+        "status": "ok",
+        "synced": 0,
+        "auto_applied": 0,
+        "rolled_back": 0,
+        "overall_score": 17
+      }
+    }
+  ]
+}
