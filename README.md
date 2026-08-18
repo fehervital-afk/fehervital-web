@@ -272,3 +272,32 @@ A V17 közvetlenül a felhasználó által visszaküldött V16 projektből kész
 - A V15 AI Cégvezető és V16 Business OS változatlanul megmaradnak.
 
 Fontos: a V17 jelenlegi üzleti KPI-jai belső rendszeradatokra és proxy mutatókra épülnek. Valós látogatói, Search Console, Analytics és Recepciós AI foglalási adatok bekötése külön integrációs lépcső lesz; a rendszer nem állít elő kitalált forgalmi vagy bevételi számokat.
+
+## V18 – production-safe publikus build
+
+A repository gyökere helyi fejlesztői/admin fájlokat és belső AI állományokat is tartalmaz, ezért éles statikus tárhelyen **nem szabad közvetlenül a repository gyökerét publikálni**.
+
+A publikus oldalhoz használd az engedélyezőlistás buildet:
+
+```bash
+python scripts/build_public.py
+```
+
+A build a `dist/` könyvtárba kizárólag a publikus HTML oldalakat, a CSS/JS fájlokat, a publikus `assets/content/pages.json` tartalmat és az `assets/uploads/` médiát másolja.
+
+Szándékosan nem kerül a `dist/` könyvtárba többek között:
+
+- `_local_admin/`
+- `local_admin_server.py`
+- `scripts/`
+- `.github/`
+- `.git/`
+- `.local_backups/`
+- a belső AI/Cégvezető/marketing/automatizáció JSON állományok
+
+Render Static Site esetén a biztonságos éles konfiguráció:
+
+- **Build Command:** `python scripts/build_public.py`
+- **Publish Directory:** `dist`
+
+A Render beállítás módosítása előtt helyben futtasd a teszteket és a buildet. A jelenlegi maintenance/preview működés ettől a kódban nem változik; a biztonsági leválasztás akkor lép érvénybe, amikor a tárhely a `dist` könyvtárat kezdi publikálni.

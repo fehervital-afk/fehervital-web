@@ -11,7 +11,7 @@ A fejlesztés alatt álló valódi weboldal tulajdonosi előnézetének biztosí
 - Normál publikus látogatásnál a korábbi maintenance-védelem változatlanul aktív.
 
 ## Használat
-1. Nyisd meg közvetlenül: `https://www.fehervital.com/preview.html`
+1. Nyisd meg közvetlenül: `https://www.fehervital.hu/preview.html`
 2. Innen a weboldal menüpontjai szabadon bejárhatók ugyanabban a böngészőfülben.
 3. Új privát/inkognitó ablakban vagy új munkamenetben a publikus aloldalak ismét a maintenance oldalra irányítanak, amíg a `preview.html` nincs megnyitva.
 

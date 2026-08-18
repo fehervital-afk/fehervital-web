@@ -4,7 +4,7 @@
     "index": {
       "title": "Főoldal",
       "blocks": [],
-      "enabled": true,
+      "enabled": false,
       "fields": [
         {
           "key": "hero_eyebrow",
@@ -364,21 +364,6 @@
           "value": "Elérhetőség"
         },
         {
-          "key": "address",
-          "label": "Cím",
-          "value": "Cím: 8000 Székesfehérvár, Távirda u. 25."
-        },
-        {
-          "key": "phone",
-          "label": "Telefon",
-          "value": "Telefon: +36 30 335 3536"
-        },
-        {
-          "key": "email",
-          "label": "E-mail",
-          "value": "E-mail: fehervital@fehervital.com"
-        },
-        {
           "key": "note",
           "label": "Megjegyzés",
           "value": "A térképet és a végleges nyitvatartást a következő körben illesztjük be."
@@ -414,7 +399,7 @@
     },
     "contact": {
       "phone": "+36 30 335 3536",
-      "email": "fehervital@fehervital.com",
+      "email": "info@fehervital.hu",
       "address": "8000 Székesfehérvár, Távirda u. 25.",
       "hours": "",
       "map_url": "",
@@ -422,6 +407,7 @@
       "instagram": "",
       "tiktok": "",
       "youtube": ""
-    }
+    },
+    "domain": "fehervital.hu"
   }
 }

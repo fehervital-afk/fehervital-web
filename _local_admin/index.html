@@ -227,6 +227,7 @@ label{display:block;font-weight:700;margin:10px 0 6px}input,textarea,select{widt
       <div><label>Telefon</label><input id="contactPhone"></div>
       <div><label>E-mail</label><input id="contactEmail"></div>
     </div>
+    <label>Hivatalos domain</label><input id="siteDomain" placeholder="fehervital.hu">
     <label>Cím</label><input id="contactAddress">
     <label>Nyitvatartás</label><textarea id="contactHours" style="min-height:90px"></textarea>
     <label>Google Térkép / Maps URL</label><input id="contactMap">
@@ -826,10 +827,42 @@ label{display:block;font-weight:700;margin:10px 0 6px}input,textarea,select{widt
 const API='/__admin'; let model=null,current='index',dirty=false; const $=s=>document.querySelector(s); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const uid=()=>`b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
 function status(msg,err=false){const e=$('#status');e.textContent=msg;e.className='status show'+(err?' err':'');setTimeout(()=>e.classList.remove('show'),5000)} function markDirty(v=true){dirty=v;$('#dirtyBadge').hidden=!dirty}
 async function api(path,opts={}){const r=await fetch(API+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);return j}
-function switchTab(name){document.querySelectorAll('.tab,.tabpane').forEach(x=>x.classList.remove('active'));document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');$('#'+name)?.classList.add('active');if(name==='media')loadMedia();if(name==='backups')loadBackups()}
+function switchTab(name){if(typeof ai9ShowOnly==='function')ai9ShowOnly(null);document.querySelectorAll('.tab,.tabpane').forEach(x=>x.classList.remove('active'));document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');$('#'+name)?.classList.add('active');if(name==='media')loadMedia();if(name==='backups')loadBackups()}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));$('#mediaTabBtn').onclick=()=>switchTab('media');$('#backupTabBtn').onclick=()=>switchTab('backups');
-async function init(){try{model=await api('/content'); model.site=model.site||{logo_text:'Fehérvitál',logo_image:'',favicon:'',hero_media:{type:'none',src:'',alt:''},gallery:[]};Object.values(model.pages||{}).forEach(p=>{p.enabled??=true;p.fields??=[];p.blocks??=[]});renderPages();renderEditor()}catch(e){status(e.message,true)}}
+async function init(){try{model=await api('/content');ensureSiteModel();Object.values(model.pages||{}).forEach(p=>{p.enabled??=true;p.fields??=[];p.blocks??=[];p.seo??={title:'',description:'',keywords:'',og_image:''}});bindGlobalSettings();renderPages();renderEditor()}catch(e){status(e.message,true)}}
 function renderPages(){const box=$('#pages');box.innerHTML='';Object.entries(model.pages).forEach(([slug,p])=>{const b=document.createElement('button');b.textContent=p.title||slug;b.className=slug===current?'active':'';b.onclick=()=>{current=slug;renderPages();renderEditor();switchTab('editor')};box.appendChild(b)})}
+function ensureSiteModel(){
+  model.site=model.site||{};
+  model.site.logo_text??='Fehérvitál';model.site.logo_image??='';model.site.favicon??='';model.site.domain??='fehervital.hu';
+  model.site.hero_media=model.site.hero_media||{type:'none',src:'',alt:'',position:'right'};
+  model.site.gallery=Array.isArray(model.site.gallery)?model.site.gallery:[];
+  model.site.design={primary:'#2f7a57',secondary:'#225f43',background:'#f7faf8',text:'#173126',radius:18,shadow:'soft',font:'system',...(model.site.design||{})};
+  model.site.contact={phone:'',email:'info@fehervital.hu',address:'',hours:'',map_url:'',facebook:'',instagram:'',tiktok:'',youtube:'',...(model.site.contact||{})};
+}
+function setAdminValue(id,value){const el=$(id);if(el)el.value=value??''}
+function renderGlobalSettings(){
+  ensureSiteModel();const site=model.site,d=site.design,c=site.contact,hm=site.hero_media;
+  setAdminValue('#siteLogoText',site.logo_text);setAdminValue('#siteLogoImage',site.logo_image);setAdminValue('#siteFavicon',site.favicon);
+  setAdminValue('#heroMediaType',hm.type||'none');setAdminValue('#heroMediaSrc',hm.src);setAdminValue('#heroMediaAlt',hm.alt);
+  setAdminValue('#designPrimary',d.primary);setAdminValue('#designSecondary',d.secondary);setAdminValue('#designBackground',d.background);setAdminValue('#designText',d.text);
+  setAdminValue('#designFont',d.font||'system');setAdminValue('#designRadius',d.radius??18);setAdminValue('#designShadow',d.shadow||'soft');
+  setAdminValue('#contactPhone',c.phone);setAdminValue('#contactEmail',c.email);setAdminValue('#siteDomain',site.domain);setAdminValue('#contactAddress',c.address);
+  setAdminValue('#contactHours',c.hours);setAdminValue('#contactMap',c.map_url);setAdminValue('#contactFacebook',c.facebook);setAdminValue('#contactInstagram',c.instagram);setAdminValue('#contactTiktok',c.tiktok);setAdminValue('#contactYoutube',c.youtube);
+  const seo=model.pages?.[current]?.seo||{};setAdminValue('#seoTitle',seo.title);setAdminValue('#seoDescription',seo.description);setAdminValue('#seoKeywords',seo.keywords);setAdminValue('#seoOgImage',seo.og_image);
+  const gallery=$('#galleryEditor');if(gallery)gallery.innerHTML=site.gallery.length?`<p class="hint">${site.gallery.length} galériakép van beállítva. A galériaszerkesztést egy következő csomagban fejezzük be.</p>`:'<p class="hint">A galéria még üres.</p>';
+}
+function bindGlobalSettings(){
+  const bind=(id,event,setter)=>{const el=$(id);if(!el||el.dataset.modelBound==='1')return;el.dataset.modelBound='1';el.addEventListener(event,()=>{ensureSiteModel();setter(el.value);markDirty()})};
+  bind('#siteLogoText','input',v=>model.site.logo_text=v);bind('#siteLogoImage','input',v=>model.site.logo_image=v);bind('#siteFavicon','input',v=>model.site.favicon=v);
+  bind('#heroMediaType','change',v=>model.site.hero_media.type=v);bind('#heroMediaSrc','input',v=>model.site.hero_media.src=v);bind('#heroMediaAlt','input',v=>model.site.hero_media.alt=v);
+  bind('#designPrimary','input',v=>model.site.design.primary=v);bind('#designSecondary','input',v=>model.site.design.secondary=v);bind('#designBackground','input',v=>model.site.design.background=v);bind('#designText','input',v=>model.site.design.text=v);
+  bind('#designFont','change',v=>model.site.design.font=v);bind('#designRadius','input',v=>model.site.design.radius=Math.max(0,Math.min(40,Number(v)||0)));bind('#designShadow','change',v=>model.site.design.shadow=v);
+  bind('#contactPhone','input',v=>model.site.contact.phone=v);bind('#contactEmail','input',v=>model.site.contact.email=v);bind('#siteDomain','input',v=>model.site.domain=v.trim());bind('#contactAddress','input',v=>model.site.contact.address=v);
+  bind('#contactHours','input',v=>model.site.contact.hours=v);bind('#contactMap','input',v=>model.site.contact.map_url=v);bind('#contactFacebook','input',v=>model.site.contact.facebook=v);bind('#contactInstagram','input',v=>model.site.contact.instagram=v);bind('#contactTiktok','input',v=>model.site.contact.tiktok=v);bind('#contactYoutube','input',v=>model.site.contact.youtube=v);
+  bind('#seoTitle','input',v=>{model.pages[current].seo.title=v});bind('#seoDescription','input',v=>{model.pages[current].seo.description=v});bind('#seoKeywords','input',v=>{model.pages[current].seo.keywords=v});bind('#seoOgImage','input',v=>{model.pages[current].seo.og_image=v});
+  const open=(buttonId,viewId)=>{const b=$(buttonId);if(b)b.onclick=()=>{renderGlobalSettings();ai9ShowOnly(viewId)}};
+  open('#mediaSettingsBtn','siteMediaSettings');open('#designBtn','designView');open('#contactBtn','contactView');open('#seoBtn','seoView');
+}
 function renderEditor(){const p=model.pages[current];$('#pageTitle').textContent=p.title||current;$('#adminTitle').value=p.title||'';$('#pageEnabled').value=String(p.enabled!==false);const existing=$('#existingFields');existing.innerHTML='';(p.fields||[]).forEach((f,i)=>{const d=document.createElement('div');d.style.marginTop='10px';const multiline=String(f.value||'').length>90;d.innerHTML=`<label>${esc(f.label||f.key)}</label>${multiline?`<textarea>${esc(f.value)}</textarea>`:`<input value="${esc(f.value)}">`}`;const inp=d.querySelector('input,textarea');inp.oninput=()=>{f.value=inp.value;markDirty()};existing.appendChild(d)});if(!(p.fields||[]).length)existing.innerHTML='<p class="hint">Nincs importált szöveg.</p>';const box=$('#blocks');box.innerHTML='';(p.blocks||[]).forEach((b,i)=>box.appendChild(blockEl(b,i)));if(!(p.blocks||[]).length)box.innerHTML='<div class="empty">Még nincs új blokk ezen az oldalon.</div>'}
 function opt(v,l,c){return `<option value="${v}" ${String(v)===String(c)?'selected':''}>${l}</option>`}
 function preview(b){if(!b.src)return'';if(b.type==='image')return`<img src="/${esc(b.src)}">`;if(/^https?:\/\//.test(b.src))return`<small>${esc(b.src)}</small>`;return`<video src="/${esc(b.src)}" controls></video>`}

@@ -1,31 +1,14 @@
-// Ideiglenes karbantartási mód.
-// A publikus látogatók csak a maintenance oldalt látják.
-// A rejtett preview.html megnyitása az adott böngészőfülre engedélyezi az előnézetet.
+// Ideiglenes, host alapú karbantartási mód.
+// A két publikus domain látogatói csak a maintenance oldalt látják.
 (function () {
-  const localHosts = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
-  const isLocal = localHosts.has(window.location.hostname);
+  const protectedHosts = new Set(["fehervital.hu", "www.fehervital.hu"]);
+  const hostname = window.location.hostname.toLowerCase().replace(/\.$/, "");
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  const isPreviewEntry = path.endsWith("/preview.html") || path === "/preview.html";
-
-  if (isPreviewEntry) {
-    try { sessionStorage.setItem("fehervital_preview", "1"); } catch (_) {}
-  }
-
-  let previewActive = false;
-  try { previewActive = sessionStorage.getItem("fehervital_preview") === "1"; } catch (_) {}
-
   const isMaintenancePage = path === "/" || path.endsWith("/index.html");
-  if (!isLocal && !previewActive && !isMaintenancePage) {
+
+  if (protectedHosts.has(hostname) && !isMaintenancePage) {
     window.location.replace("/");
     return;
-  }
-
-  if (previewActive) {
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll('a[href="index.html"], a[href="/"]').forEach((link) => {
-        link.setAttribute("href", "preview.html");
-      });
-    });
   }
 })();
 
@@ -71,9 +54,19 @@ function cmsApplySEO(page) {
 
 function cmsApplyContact(site) {
   const c = site?.contact || {};
-  document.querySelectorAll('[data-cms-contact="phone"]').forEach(el => el.textContent = c.phone || '');
-  document.querySelectorAll('[data-cms-contact="email"]').forEach(el => el.textContent = c.email || '');
+  document.querySelectorAll('[data-cms-contact="phone"]').forEach(el => {
+    el.textContent = c.phone || '';
+    if (el.tagName === 'A') el.href = c.phone ? `tel:${String(c.phone).replace(/[^+\d]/g, '')}` : '#';
+  });
+  document.querySelectorAll('[data-cms-contact="email"]').forEach(el => {
+    el.textContent = c.email || '';
+    if (el.tagName === 'A') el.href = c.email ? `mailto:${c.email}` : '#';
+  });
   document.querySelectorAll('[data-cms-contact="address"]').forEach(el => el.textContent = c.address || '');
+  document.querySelectorAll('[data-cms-site="domain"]').forEach(el => {
+    el.textContent = site?.domain || '';
+    if (el.tagName === 'A') el.href = site?.domain ? `https://${site.domain}` : '#';
+  });
 }
 
 
@@ -299,9 +292,11 @@ async function cmsLoadPage() {
   const mount=document.querySelector('[data-cms-page]'); if(!mount)return;
   const slug=mount.dataset.cmsPage;
   try {
-    const res=await fetch('assets/content/pages.json',{cache:'no-store'}); if(!res.ok)return;
+    const res=await fetch(cmsDataUrl(),{cache:'no-store'}); if(!res.ok)return;
     const data=await res.json(); const page=data?.pages?.[slug];
+    cmsApplySiteSettings(data);
     if(!page||page.enabled===false){mount.closest('.cms-content-section')?.classList.add('cms-empty');return}
+    cmsApplySEO(page);
     (page.fields||[]).forEach(field=>{
       document.querySelectorAll(`[data-cms-field="${CSS.escape(field.key)}"]`).forEach(el=>{el.textContent=field.value??''});
     });

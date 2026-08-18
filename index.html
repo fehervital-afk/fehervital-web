@@ -7,6 +7,13 @@
   <meta name="googlebot" content="noindex, nofollow, noarchive">
   <title>Fehérvitál Egészségpont | Weboldalunk megújul</title>
   <meta name="description" content="A Fehérvitál Egészségpont weboldala jelenleg fejlesztés alatt áll.">
+  <script>
+    (function () {
+      const protectedHosts = new Set(["fehervital.hu", "www.fehervital.hu"]);
+      const hostname = window.location.hostname.toLowerCase().replace(/\.$/, "");
+      if (!protectedHosts.has(hostname)) window.location.replace("preview.html");
+    })();
+  </script>
   <style>
     :root {
       --green: #2f8665;
@@ -154,7 +161,7 @@
         <p class="lead">Jelenleg egy modernebb, átláthatóbb és könnyebben használható weboldalon dolgozunk. Köszönjük a türelmet — hamarosan újra elérhetőek leszünk.</p>
         <div class="contact" aria-label="Kapcsolat">
           <a href="tel:+36303353536">+36 30 335 3536</a>
-          <a href="mailto:fehervital@fehervital.com">fehervital@fehervital.com</a>
+          <a href="mailto:info@fehervital.hu">info@fehervital.hu</a>
         </div>
       </div>
     </main>
