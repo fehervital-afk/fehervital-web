@@ -1,5 +1,5 @@
 {
-  "version": 17,
+  "version": "19.1",
   "pages": {
     "index": {
       "title": "Főoldal",
@@ -206,7 +206,33 @@
     },
     "biorezonancia": {
       "title": "Biorezonancia",
-      "blocks": [],
+      "blocks": [
+        {
+          "id": "b_msyrqti7_90hdo",
+          "type": "image",
+          "visible": true,
+          "width": "100",
+          "align": "left",
+          "style": "normal",
+          "src": "assets/uploads/1787063992-2763e029-ChatGPT-Image-2026-j-n-6-21_56_32.png",
+          "title": "Biorezonanciás energetikai felmérés",
+          "alt": "Biorezonanciás energetikai felmérés bemutatása a Fehérvitál Egészségpontban",
+          "description": "Tájékoztató kép a biorezonanciás energetikai felmérésről, amely több biofizikai paraméter áttekintését mutatja be wellness célú, tájékoztató jelleggel.",
+          "caption": "Biorezonanciás energetikai felmérés – tájékoztató jellegű wellness állapotfelmérés."
+        },
+        {
+          "id": "b_msyrtjoc_fs6rc",
+          "type": "video",
+          "visible": true,
+          "width": "100",
+          "align": "left",
+          "style": "normal",
+          "src": "assets/uploads/1787064117-efec1a34-Ingyenes-Biorezonanci-s-Felm-r-s---Vide.mp4",
+          "title": "Ingyenes biorezonanciás állapotfelmérés Székesfehérváron",
+          "description": "Rövid videó a Fehérvitál Egészségpontban ingyenesen igénybe vehető biorezonanciás állapotfelmérésről. A felmérés wellness célú, tájékoztató jellegű, és nem helyettesít orvosi vizsgálatot vagy diagnózist.",
+          "caption": "Ismerje meg röviden a Fehérvitál biorezonanciás állapotfelmérését."
+        }
+      ],
       "enabled": true,
       "fields": [
         {
@@ -369,6 +395,198 @@
           "value": "A térképet és a végleges nyitvatartást a következő körben illesztjük be."
         }
       ],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "recepcios_ai": {
+      "title": "Recepciós AI",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "A Fehérvitál Kft. fő terméke"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Recepciós AI"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "Intelligens szolgáltató- és termékkereső platform, amely külön weboldalon, a recepciosai.hu címen érhető el."
+        }
+      ],
+      "seo": {
+        "title": "Recepciós AI | Fehérvitál",
+        "description": "Intelligens szolgáltató- és termékkereső platform, amely külön weboldalon, a recepciosai.hu címen érhető el.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "egeszsegpont": {
+      "title": "Fehérvitál Egészségpont",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "Bemutató- és kipróbálási helyszín"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Fehérvitál Egészségpont"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "A Fehérvitál wellness termékei személyesen megismerhetők és kipróbálhatók."
+        }
+      ],
+      "seo": {
+        "title": "Fehérvitál Egészségpont | Fehérvitál",
+        "description": "A Fehérvitál wellness termékei személyesen megismerhetők és kipróbálhatók.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "termekek": {
+      "title": "Termékeink",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "Fehérvitál termékek"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Fehérvitál termékek"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "Wellness célú termékek és technológiák bemutatása."
+        }
+      ],
+      "seo": {
+        "title": "Termékeink | Fehérvitál",
+        "description": "Wellness célú termékek és technológiák bemutatása.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "oxigenkoncentrator": {
+      "title": "Oxigénkoncentrátor",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "Fehérvitál termék"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Oxigénkoncentrátor"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "Az oxigénkoncentrátor működése és wellness célú kipróbálási lehetősége."
+        }
+      ],
+      "seo": {
+        "title": "Oxigénkoncentrátor | Fehérvitál",
+        "description": "Az oxigénkoncentrátor működése és wellness célú kipróbálási lehetősége.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "lagy_lezer": {
+      "title": "Lágy Lézer terápia",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "Fehérvitál termék"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Lágy Lézer terápia"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "A lágy lézer technológia bemutatása és wellness célú kipróbálási lehetősége."
+        }
+      ],
+      "seo": {
+        "title": "Lágy Lézer terápia | Fehérvitál",
+        "description": "A lágy lézer technológia bemutatása és wellness célú kipróbálási lehetősége.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "vorosfenyu_hajapolo_sisak": {
+      "title": "Vörösfényű hajápoló sisak",
+      "blocks": [],
+      "enabled": true,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Kiemelés",
+          "value": "Fehérvitál termék"
+        },
+        {
+          "key": "title",
+          "label": "Főcím",
+          "value": "Vörösfényű hajápoló sisak"
+        },
+        {
+          "key": "lead",
+          "label": "Bevezető",
+          "value": "Vörösfény-alapú hajápoló eszköz bemutatása és kipróbálási lehetősége."
+        }
+      ],
+      "seo": {
+        "title": "Vörösfényű hajápoló sisak | Fehérvitál",
+        "description": "Vörösfény-alapú hajápoló eszköz bemutatása és kipróbálási lehetősége.",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "adatkezeles": {
+      "title": "Adatkezelés",
+      "blocks": [],
+      "enabled": true,
+      "fields": [],
+      "seo": {
+        "title": "",
+        "description": "",
+        "keywords": "",
+        "og_image": ""
+      }
+    },
+    "idopontfoglalas": {
+      "title": "Időpontfoglalás",
+      "blocks": [],
+      "enabled": true,
+      "fields": [],
       "seo": {
         "title": "",
         "description": "",

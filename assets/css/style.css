@@ -126,3 +126,7 @@ h2{font-size:clamp(2rem,4vw,3rem)}
 .cms-price-value{font-size:2rem;font-weight:900;margin:8px 0 12px}
 .cms-divider hr{border:0;border-top:1px solid var(--line,#dce9e1)}
 .cms-buttons{display:flex;gap:10px;flex-wrap:wrap}
+
+
+/* Fehérvitál CMS V19.2 */
+.cms-media-title{margin:0 0 8px;font-size:1.22rem}.cms-media-description{margin:0 0 14px;white-space:pre-line}

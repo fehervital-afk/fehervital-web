@@ -23,6 +23,12 @@ PUBLIC_HTML = (
     "kapcsolat.html",
     "adatkezeles.html",
     "idopontfoglalas.html",
+    "recepcios-ai.html",
+    "egeszsegpont.html",
+    "termekek.html",
+    "oxigenkoncentrator.html",
+    "lagy-lezer.html",
+    "vorosfenyu-hajapolo-sisak.html",
 )
 
 PUBLIC_FILES = (
