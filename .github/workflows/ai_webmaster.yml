@@ -6,7 +6,7 @@ on:
     - cron: "17 * * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   ai-webmaster:
@@ -23,14 +23,5 @@ jobs:
         run: |
           python scripts/ai_webmaster.py --audit --process
 
-      - name: Commit automatic changes
-        run: |
-          if git diff --quiet; then
-            echo "No changes."
-            exit 0
-          fi
-          git config user.name "Fehervital AI Webmaster"
-          git config user.email "fehervital-ai-webmaster@users.noreply.github.com"
-          git add assets/content
-          git commit -m "AI webmaster automated update"
-          git push
+      - name: Verify no publication occurs
+        run: git status --short

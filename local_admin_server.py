@@ -2,9 +2,11 @@ from __future__ import annotations
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-import base64, json, mimetypes, os, re, shutil, subprocess, time, uuid
+import base64, json, mimetypes, os, re, secrets, shutil, subprocess, time, uuid
 from urllib.parse import urlparse
 from datetime import datetime, timezone
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
+from automation_policy import evaluate_action, write_audit_event
 
 ROOT=Path(__file__).resolve().parent
 CONTENT=ROOT/'assets'/'content'/'pages.json'
@@ -29,6 +31,25 @@ STRATEGIC_GOALS_PATH=ROOT/'assets'/'content'/'strategic_goals.json'
 ALLOWED_IMAGE={'.jpg','.jpeg','.png','.webp','.gif'}
 ALLOWED_VIDEO={'.mp4','.webm','.ogg'}
 MAX_IMAGE=15*1024*1024; MAX_VIDEO=90*1024*1024
+ADMIN_CSRF_TOKEN=secrets.token_urlsafe(32)
+
+def local_admin_request_allowed(host:str, origin:str|None, token:str|None, require_token=True)->bool:
+    try:
+        hostname=(urlparse('//' + str(host or '')).hostname or '').lower()
+    except Exception:
+        return False
+    if hostname not in {'localhost','127.0.0.1'}:
+        return False
+    if origin:
+        try:
+            parsed=urlparse(origin)
+            if parsed.scheme not in {'http','https'} or (parsed.hostname or '').lower() not in {'localhost','127.0.0.1'}:
+                return False
+        except Exception:
+            return False
+    if require_token and not secrets.compare_digest(str(token or ''), ADMIN_CSRF_TOKEN):
+        return False
+    return True
 
 def safe_media_path(rel:str)->Path:
     rel=rel.replace('\\','/').lstrip('/')
@@ -67,6 +88,10 @@ class Handler(SimpleHTTPRequestHandler):
         if n<=0 or n>max_bytes: raise ValueError('Érvénytelen vagy túl nagy kérés.')
         return json.loads(self.rfile.read(n).decode('utf-8'))
     def do_GET(self):
+        if urlparse(self.path).path == '/__admin/security-token':
+            if not local_admin_request_allowed(self.headers.get('Host',''), self.headers.get('Origin'), None, require_token=False):
+                self._json({'error':'Local admin origin rejected.'},403); return
+            self._json({'token':ADMIN_CSRF_TOKEN},200); return
         if self.path == '/__admin/ai-state':
             def loadj(p, default):
                 try: return json.loads(p.read_text(encoding='utf-8'))
@@ -168,6 +193,9 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_response(302); self.send_header('Location','/_local_admin/index.html'); self.end_headers(); return
         return super().do_GET()
     def do_POST(self):
+        if not local_admin_request_allowed(self.headers.get('Host',''), self.headers.get('Origin'),
+                                           self.headers.get('X-Fehervital-CSRF'), require_token=True):
+            self._json({'error':'Unsafe local admin request rejected.'},403); return
         if self.path in ('/__admin/ai-approve','/__admin/ai-reject'):
             data = self._read_json()
             task_id = str(data.get('id','')).strip()
@@ -349,7 +377,7 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path == '/__admin/autopilot-run':
             try:
                 p=subprocess.run(
-                    [sys.executable,str(ROOT/'scripts'/'autopilot.py'),'--run','--force'],
+                    [sys.executable,str(ROOT/'scripts'/'autopilot.py'),'--run'],
                     cwd=str(ROOT),capture_output=True,text=True,timeout=240
                 )
                 if p.returncode!=0:
@@ -474,6 +502,9 @@ class Handler(SimpleHTTPRequestHandler):
             }
             q.setdefault('tasks',[]).append(task)
             AI_TASKS_PATH.write_text(json.dumps(q,ensure_ascii=False,indent=2),encoding='utf-8')
+            write_audit_event('task_created',task_id=task['id'],actor='local_admin',action='create_task',
+                              target='assets/content/ai_tasks.json',policy_risk='LOW',result='created',
+                              reason='Manual task created in local admin.')
             self._json({'ok':True,'task':task},200)
             return
 
@@ -549,6 +580,9 @@ class Handler(SimpleHTTPRequestHandler):
                 self._json({'error':'A parancs nem lehet üres.'},400); return
             q.setdefault('tasks', []).append(task)
             AI_TASKS_PATH.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding='utf-8')
+            write_audit_event('task_created',task_id=task['id'],actor='local_admin',action='create_task',
+                              target='assets/content/ai_tasks.json',policy_risk='LOW',result='created',
+                              reason='AI Webmaster task created in local admin.')
             self._json({'task':task},200)
             return
 
@@ -649,7 +683,13 @@ class Handler(SimpleHTTPRequestHandler):
                 if not source.exists() or not name.startswith('pages-') or source.suffix!='.json': raise ValueError('A biztonsági mentés nem található.')
                 create_backup(); shutil.copy2(source,CONTENT); self._json({'ok':True,'content':json.loads(CONTENT.read_text(encoding='utf-8'))}); return
             if p=='/__admin/publish':
-                data=self._read_json(1024*1024); msg=str(data.get('message') or 'Update Fehervital website content')[:120]
+                data=self._read_json(1024*1024)
+                policy=evaluate_action({'action':'publish','target':'production','target_type':'production'},
+                                       approved=True,actor='local_admin',autopilot=False)
+                write_audit_event('publish_requested',actor='local_admin',action='publish',target='production',
+                                  policy_risk=policy.risk,result='allowed' if policy.allowed else 'blocked',reason=policy.reason)
+                if not policy.allowed: raise PermissionError('Explicit human publish confirmation is required.')
+                msg=str(data.get('message') or 'Update Fehervital website content')[:120]
                 def run(args): return subprocess.run(args,cwd=ROOT,text=True,capture_output=True,timeout=120)
                 r=run(['git','add','assets/content/pages.json','assets/uploads','assets/js/app.js','assets/css/style.css','index.html','biorezonancia.html','harmonyscan.html','ai.html','kapcsolat.html','adatkezeles.html','idopontfoglalas.html','_local_admin/index.html','local_admin_server.py','INDITAS_FEHERVITAL_WEB.bat','.gitignore'])
                 if r.returncode: raise RuntimeError(r.stderr or r.stdout)

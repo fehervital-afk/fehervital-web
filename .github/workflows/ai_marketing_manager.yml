@@ -6,7 +6,7 @@ on:
     - cron: "37 5 * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   marketing-manager:
@@ -23,14 +23,5 @@ jobs:
         run: |
           python scripts/marketing_manager.py --analyze
 
-      - name: Commit marketing intelligence
-        run: |
-          if git diff --quiet; then
-            echo "No changes."
-            exit 0
-          fi
-          git config user.name "Fehervital AI Marketing Manager"
-          git config user.email "fehervital-ai-marketing@users.noreply.github.com"
-          git add assets/content/marketing.json assets/content/ai_tasks.json
-          git commit -m "AI marketing manager daily analysis"
-          git push
+      - name: Verify no publication occurs
+        run: git status --short

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse, json, subprocess, sys
 from pathlib import Path
 from datetime import datetime, timezone
+from automation_policy import evaluate_plan, write_audit_event
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "assets" / "content"
@@ -68,12 +69,16 @@ def apply_low_risk(ap):
     for item in q.get("items", []):
         if item.get("status") not in {"ready","previewed"}:
             continue
-        if item.get("risk") != "low":
+        policy = evaluate_plan(item.get("plan") or {}, approved=False, actor="autopilot", autopilot=True)
+        if not policy["allowed"] or policy["risk"] != "LOW" or not policy["autopilot_allowed"]:
+            write_audit_event("autopilot_blocked", task_id=item.get("task_id", ""), actor="autopilot",
+                              action="plan", target="assets/content/pages.json", policy_risk=policy["risk"],
+                              result="blocked", reason=policy["reason"])
             continue
 
         before_score = overall_score()
 
-        p = run_py("executor_engine.py", "--approve", str(item.get("id")))
+        p = run_py("executor_engine.py", "--approve", str(item.get("id")), "--autopilot", "--actor", "autopilot")
         if p.returncode != 0:
             raise RuntimeError((p.stderr or p.stdout or "Automatikus végrehajtási hiba").strip())
 
@@ -111,11 +116,14 @@ def run_once(force=False):
     ap["last_run"] = now()
     ap["stats"]["runs"] = int(ap["stats"].get("runs",0)) + 1
 
-    if not ap.get("enabled") and not force:
-        result = {"status":"disabled","message":"Az Autopilot ki van kapcsolva."}
+    if not ap.get("enabled"):
+        result = {"status":"disabled","message":"Az Autopilot hard kill switch kikapcsolt állapotban van."}
         ap["last_result"] = result
         append_history(ap, "skipped", result["message"])
         save(AUTOPILOT, ap)
+        write_audit_event("autopilot_blocked", actor="autopilot_force" if force else "autopilot",
+                          action="run", target="automation", policy_risk="BLOCKED", result="blocked",
+                          reason="Hard kill switch is disabled; force cannot bypass it.")
         return result
 
     try:

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, os, re, sys, urllib.request, urllib.error
+import argparse, json, os, re, subprocess, sys, urllib.request, urllib.error
 from pathlib import Path
 from datetime import datetime, timezone
+from automation_policy import evaluate_plan, write_audit_event
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "assets" / "content"
@@ -253,19 +254,30 @@ def process_tasks(force_auto=False):
             errors = validate_plan(plan, pages)
             if errors:
                 raise RuntimeError("Érvénytelen AI terv: " + " | ".join(errors))
+            policy = evaluate_plan(plan, approved=False, actor="ai_webmaster", autopilot=False)
+            if policy["risk"] == "BLOCKED":
+                raise RuntimeError("Policy blocked: " + policy["reason"])
             task["plan"] = plan
+            task["policy"] = policy
             task["updated_at"] = utcnow()
+            write_audit_event("policy_checked", task_id=task.get("id", ""), actor="ai_webmaster",
+                              action="plan", target="assets/content/pages.json",
+                              policy_risk=policy["risk"], result="allowed" if policy["allowed"] else "approval_required",
+                              reason=policy["reason"], details={"decisions": policy["decisions"], "ai_risk": plan.get("risk")})
 
             mode = cfg.get("mode","approval")
-            risk = plan.get("risk","high")
-            requires = approval_required(plan, cfg)
-
-            auto = force_auto or (
-                cfg.get("enabled") and (
-                    (mode == "full_auto" and risk == "low" and not requires) or
-                    (mode == "safe_auto" and risk == "low" and not requires)
-                )
-            )
+            risk = policy["risk"]
+            requires = policy["approval_required"]
+            auto_requested = force_auto or (cfg.get("enabled") and mode in {"full_auto", "safe_auto"})
+            auto_policy = evaluate_plan(plan, approved=False,
+                                        actor="ai_webmaster_force" if force_auto else "ai_webmaster",
+                                        autopilot=True) if auto_requested else policy
+            auto = bool(auto_requested and auto_policy["allowed"] and auto_policy["autopilot_allowed"])
+            if force_auto:
+                write_audit_event("policy_checked", task_id=task.get("id", ""), actor="ai_webmaster_force",
+                                  action="force_auto", target="assets/content/pages.json",
+                                  policy_risk=auto_policy["risk"], result="allowed" if auto else "blocked",
+                                  reason=auto_policy["reason"])
 
             if auto:
                 n = apply_changes(pages, plan)
@@ -275,6 +287,13 @@ def process_tasks(force_auto=False):
                 append_log("applied", plan.get("summary","AI módosítás alkalmazva."), task.get("id"), {"changes":n,"risk":risk})
             else:
                 task["status"] = "waiting_approval"
+                task["approval"] = {
+                    "required": requires, "status": "requested", "approved_at": None,
+                    "approved_by": None, "policy_risk": risk, "policy_reason": policy["reason"]
+                }
+                write_audit_event("approval_requested", task_id=task.get("id", ""), actor="ai_webmaster",
+                                  action="plan", target="assets/content/pages.json", policy_risk=risk,
+                                  result="requested", reason="Human approval required by policy.")
                 append_log("plan_ready", plan.get("summary","AI terv elkészült."), task.get("id"), {"risk":risk})
             results.append({"id":task.get("id"),"status":task["status"]})
         except Exception as e:
@@ -307,13 +326,21 @@ def main():
         found = next((t for t in q.get("tasks",[]) if t.get("id") == args.approve_task), None)
         if not found or found.get("status") != "waiting_approval":
             raise SystemExit("A feladat nem található vagy nem vár jóváhagyásra.")
-        n = apply_changes(pages, found.get("plan") or {})
-        found["status"] = "applied"
-        found["applied_changes"] = n
-        found["applied_at"] = utcnow()
-        save(PAGES, pages); save(TASKS, q)
-        append_log("approved", found.get("plan",{}).get("summary","AI terv jóváhagyva."), found.get("id"), {"changes":n})
-        print(json.dumps({"ok":True,"changes":n}, ensure_ascii=False))
+        sync = subprocess.run([sys.executable, str(ROOT / "scripts" / "executor_engine.py"), "--sync"],
+                              cwd=str(ROOT), capture_output=True, text=True, timeout=30)
+        if sync.returncode != 0:
+            raise SystemExit(sync.stderr or sync.stdout or "Executor sync failed.")
+        execution = load(CONTENT / "execution_queue.json", {"items": []})
+        item = next((x for x in execution.get("items", []) if x.get("task_id") == args.approve_task
+                     and x.get("status") in {"ready", "previewed"}), None)
+        if not item:
+            raise SystemExit("No policy-approved execution item is available.")
+        run = subprocess.run([sys.executable, str(ROOT / "scripts" / "executor_engine.py"),
+                              "--approve", str(item.get("id")), "--actor", "local_admin"],
+                             cwd=str(ROOT), capture_output=True, text=True, timeout=240)
+        if run.returncode != 0:
+            raise SystemExit(run.stderr or run.stdout or "Executor validation failed.")
+        print((run.stdout or "{}").strip())
         return
 
     if args.reject_task:
@@ -324,6 +351,9 @@ def main():
         found["status"] = "rejected"
         found["updated_at"] = utcnow()
         save(TASKS, q)
+        write_audit_event("rejected", task_id=found.get("id", ""), actor="local_admin", action="plan",
+                          target="assets/content/pages.json", policy_risk=(found.get("policy") or {}).get("risk", ""),
+                          result="rejected", reason="Human rejected the plan.")
         append_log("rejected", "AI terv elutasítva.", found.get("id"))
         print(json.dumps({"ok":True}, ensure_ascii=False))
         return

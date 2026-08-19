@@ -826,7 +826,13 @@ label{display:block;font-weight:700;margin:10px 0 6px}input,textarea,select{widt
 <script>
 const API='/__admin'; let model=null,current='index',dirty=false; const $=s=>document.querySelector(s); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const uid=()=>`b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
 function status(msg,err=false){const e=$('#status');e.textContent=msg;e.className='status show'+(err?' err':'');setTimeout(()=>e.classList.remove('show'),5000)} function markDirty(v=true){dirty=v;$('#dirtyBadge').hidden=!dirty}
-async function api(path,opts={}){const r=await fetch(API+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);return j}
+let ADMIN_CSRF='';
+async function api(path,opts={}){
+  const method=String(opts.method||'GET').toUpperCase();
+  if(method!=='GET'&&!ADMIN_CSRF){const t=await fetch('/__admin/security-token',{headers:{'Accept':'application/json'}});const j=await t.json();if(!t.ok||!j.token)throw new Error('Local admin security token unavailable.');ADMIN_CSRF=j.token}
+  const headers={'Content-Type':'application/json',...(method!=='GET'?{'X-Fehervital-CSRF':ADMIN_CSRF}:{}),...(opts.headers||{})};
+  const r=await fetch(API+path,{...opts,headers});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);return j
+}
 function switchTab(name){if(typeof ai9ShowOnly==='function')ai9ShowOnly(null);document.querySelectorAll('.tab,.tabpane').forEach(x=>x.classList.remove('active'));document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');$('#'+name)?.classList.add('active');if(name==='media')loadMedia();if(name==='backups')loadBackups()}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));$('#mediaTabBtn').onclick=()=>switchTab('media');$('#backupTabBtn').onclick=()=>switchTab('backups');
 async function init(){try{model=await api('/content');ensureSiteModel();Object.values(model.pages||{}).forEach(p=>{p.enabled??=true;p.fields??=[];p.blocks??=[];p.seo??={title:'',description:'',keywords:'',og_image:''}});bindGlobalSettings();renderPages();renderEditor()}catch(e){status(e.message,true)}}

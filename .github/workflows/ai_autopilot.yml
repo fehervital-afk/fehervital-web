@@ -6,7 +6,7 @@ on:
     - cron: "11 * * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   autopilot:
@@ -21,16 +21,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
         run: |
-          python scripts/autopilot.py --run --force
+          python scripts/autopilot.py --run
 
-      - name: Commit safe automatic changes
-        run: |
-          if git diff --quiet; then
-            echo "No changes."
-            exit 0
-          fi
-          git config user.name "Fehervital AI Autopilot"
-          git config user.email "fehervital-ai-autopilot@users.noreply.github.com"
-          git add assets/content .local_backups || true
-          git commit -m "AI Autopilot safe update"
-          git push
+      - name: Verify no publication occurs
+        run: git status --short
