@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 from typing import Any
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, unquote_to_bytes, urlsplit
 
 from webmaster_models import create_issue
 
@@ -61,11 +61,19 @@ class IndexedLink:
     context: str
 
 
+@dataclass
+class HTMLDocumentIndex:
+    source: str
+    links: list[IndexedLink]
+    anchors: set[str]
+    anchor_counts: dict[str, int]
+
+
 @dataclass(frozen=True)
 class ClassifiedLink:
     kind: str
     target: str | None = None
-    fragment: str = ""
+    fragment: str | None = None
     reason: str = ""
 
 
@@ -74,14 +82,25 @@ class _LinkParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.source = source
         self.links: list[IndexedLink] = []
+        self.anchors: set[str] = set()
+        self.anchor_counts: dict[str, int] = {}
         self._contexts: list[str] = []
+
+    def _add_anchor(self, value: str | None) -> None:
+        if value is None or value == "":
+            return
+        self.anchors.add(value)
+        self.anchor_counts[value] = self.anchor_counts.get(value, 0) + 1
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         lowered = tag.lower()
+        attributes = {name.lower(): value for name, value in attrs if value is not None}
         if lowered in {"nav", "footer"}:
             self._contexts.append(lowered)
+        self._add_anchor(attributes.get("id"))
         if lowered == "a":
-            href = next((value for name, value in attrs if name.lower() == "href"), None)
+            self._add_anchor(attributes.get("name"))
+            href = attributes.get("href")
             if href is not None:
                 self.links.append(IndexedLink(
                     source=self.source, href=href,
@@ -94,10 +113,10 @@ class _LinkParser(HTMLParser):
             self._contexts.pop()
 
 
-def build_html_link_index(project_root: Path) -> dict[str, list[IndexedLink]]:
+def build_html_link_index(project_root: Path) -> dict[str, HTMLDocumentIndex]:
     """Parse each existing allowlisted source HTML exactly once."""
     root = project_root.resolve()
-    index: dict[str, list[IndexedLink]] = {}
+    index: dict[str, HTMLDocumentIndex] = {}
     for relative in sorted(PUBLIC_HTML_ALLOWLIST):
         source = root / relative
         if not source.is_file():
@@ -105,8 +124,21 @@ def build_html_link_index(project_root: Path) -> dict[str, list[IndexedLink]]:
         parser = _LinkParser(relative)
         parser.feed(source.read_text(encoding="utf-8", errors="replace"))
         parser.close()
-        index[relative] = parser.links
+        index[relative] = HTMLDocumentIndex(
+            source=relative, links=parser.links, anchors=parser.anchors,
+            anchor_counts=parser.anchor_counts,
+        )
     return index
+
+
+def normalize_fragment(raw_fragment: str) -> str | None:
+    """Decode a non-empty URL fragment exactly once using strict UTF-8."""
+    if raw_fragment == "" or re.search(r"%(?![0-9A-Fa-f]{2})", raw_fragment):
+        return None
+    try:
+        return unquote_to_bytes(raw_fragment).decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        return None
 
 
 def classify_href(source: str, href: str) -> ClassifiedLink:
@@ -114,6 +146,8 @@ def classify_href(source: str, href: str) -> ClassifiedLink:
     raw = str(href or "").strip()
     if not raw:
         return ClassifiedLink(OTHER_NON_HTML)
+    if raw == "#":
+        return ClassifiedLink(FRAGMENT_ONLY)
     if raw.startswith("\\\\"):
         return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="UNC paths are forbidden.")
     if re.match(r"^[A-Za-z]:[\\/]", raw):
@@ -124,9 +158,9 @@ def classify_href(source: str, href: str) -> ClassifiedLink:
     parsed = urlsplit(raw)
     scheme = parsed.scheme.lower()
     if scheme == "http":
-        return ClassifiedLink(EXTERNAL_HTTP, fragment=parsed.fragment)
+        return ClassifiedLink(EXTERNAL_HTTP, fragment=normalize_fragment(parsed.fragment))
     if scheme == "https":
-        return ClassifiedLink(EXTERNAL_HTTPS, fragment=parsed.fragment)
+        return ClassifiedLink(EXTERNAL_HTTPS, fragment=normalize_fragment(parsed.fragment))
     if scheme == "mailto":
         return ClassifiedLink(MAILTO)
     if scheme == "tel":
@@ -134,7 +168,7 @@ def classify_href(source: str, href: str) -> ClassifiedLink:
     if scheme:
         return ClassifiedLink(OTHER_NON_HTML)
     if not parsed.path and parsed.fragment:
-        return ClassifiedLink(FRAGMENT_ONLY, fragment=unquote(parsed.fragment))
+        return ClassifiedLink(FRAGMENT_ONLY, fragment=normalize_fragment(parsed.fragment))
 
     normalized_path = unquote(parsed.path).replace("\\", "/")
     parts = PurePosixPath(normalized_path).parts
@@ -157,8 +191,8 @@ def classify_href(source: str, href: str) -> ClassifiedLink:
         if target.startswith("./"):
             target = target[2:]
     if not target.lower().endswith(".html"):
-        return ClassifiedLink(OTHER_NON_HTML, target=target, fragment=unquote(parsed.fragment))
-    return ClassifiedLink(INTERNAL_HTML, target=target, fragment=unquote(parsed.fragment))
+        return ClassifiedLink(OTHER_NON_HTML, target=target, fragment=normalize_fragment(parsed.fragment))
+    return ClassifiedLink(INTERNAL_HTML, target=target, fragment=normalize_fragment(parsed.fragment))
 
 
 def detect_internal_html_links(*, project_root: Path, detected_at: str) -> list[dict[str, Any]]:
@@ -166,8 +200,9 @@ def detect_internal_html_links(*, project_root: Path, detected_at: str) -> list[
     root = project_root.resolve()
     findings: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
-    for source, links in build_html_link_index(root).items():
-        for link in links:
+    documents = build_html_link_index(root)
+    for source, document in documents.items():
+        for link in document.links:
             classified = classify_href(source, link.href)
             if classified.kind == UNSAFE_LOCAL_PATH:
                 issue_type = "unsafe_internal_path"
@@ -190,28 +225,54 @@ def detect_internal_html_links(*, project_root: Path, detected_at: str) -> list[
                     legacy_severity="high",
                 ))
                 continue
-            if classified.kind != INTERNAL_HTML or not classified.target:
-                continue
-            target = classified.target
-            dedupe_key = (source, target, "broken_internal_link")
-            if dedupe_key in seen:
-                continue
-            if target in PUBLIC_HTML_ALLOWLIST:
-                # Existence is checked only after allowlist validation.
-                if (root / target).is_file():
+            if classified.kind == FRAGMENT_ONLY:
+                target = source
+                target_document = document
+            elif classified.kind == INTERNAL_HTML and classified.target:
+                target = classified.target
+                dedupe_key = (source, target, "broken_internal_link")
+                if dedupe_key in seen:
                     continue
-            seen.add(dedupe_key)
+                if target not in PUBLIC_HTML_ALLOWLIST or not (root / target).is_file():
+                    seen.add(dedupe_key)
+                    findings.append(create_issue(
+                        page=source, category="links", issue_type="broken_internal_link",
+                        severity="warning", title="Hibás belső HTML hivatkozás",
+                        description=f"A belső HTML cél nem publikus vagy nem létezik: {target}",
+                        evidence={"source": source, "original_href": link.href,
+                                  "normalized_target": target, "fragment": classified.fragment,
+                                  "context": link.context, "expected": "Létező, allowlisted publikus HTML."},
+                        detected_at=detected_at, suggested_action={
+                            "action": "review_link", "target": source,
+                            "reason": "A hibás belső hivatkozást embernek kell felülvizsgálnia.",
+                        }, policy_risk="UNKNOWN", target=target, legacy_severity="medium",
+                    ))
+                    continue
+                target_document = documents.get(target)
+                if target_document is None:
+                    continue
+            else:
+                continue
+
+            fragment = classified.fragment
+            if fragment is None:
+                continue
+            fragment_key = (source, f"{target}#{fragment}", "broken_internal_fragment")
+            if fragment_key in seen or fragment in target_document.anchors:
+                continue
+            seen.add(fragment_key)
             findings.append(create_issue(
-                page=source, category="links", issue_type="broken_internal_link",
-                severity="warning", title="Hibás belső HTML hivatkozás",
-                description=f"A belső HTML cél nem publikus vagy nem létezik: {target}",
+                page=source, category="links", issue_type="broken_internal_fragment",
+                severity="warning", title="Hiányzó belső hivatkozási pont",
+                description=f"A céloldalon nem található a hivatkozott fragment: {target}#{fragment}",
                 evidence={"source": source, "original_href": link.href,
-                          "normalized_target": target, "fragment": classified.fragment,
-                          "context": link.context, "expected": "Létező, allowlisted publikus HTML."},
+                          "normalized_target": target, "fragment": fragment,
+                          "context": link.context, "expected": "Létező id vagy legacy a[name] anchor."},
                 detected_at=detected_at, suggested_action={
                     "action": "review_link", "target": source,
-                    "reason": "A hibás belső hivatkozást embernek kell felülvizsgálnia.",
+                    "reason": "A hiányzó fragmentet embernek kell felülvizsgálnia.",
                 }, policy_risk="UNKNOWN", target=target, legacy_severity="medium",
+                case_sensitive_identity=fragment,
             ))
     return findings
 

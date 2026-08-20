@@ -60,18 +60,18 @@ def test_query_is_stripped_for_target_validation():
     assert result.kind == INTERNAL_HTML and result.target == "biorezonancia.html"
 
 
-def test_fragment_is_extracted_but_not_validated(tmp_path):
+def test_fragment_is_extracted_without_broken_link_issue(tmp_path):
     write_public(tmp_path, {"index.html": '<a href="biorezonancia.html#missing">B</a>',
                             "biorezonancia.html": "<p>no anchor</p>"})
     result = classify_href("index.html", "biorezonancia.html#missing")
     assert result.fragment == "missing"
-    assert detect(tmp_path) == []
+    assert "broken_internal_link" not in [item["type"] for item in detect(tmp_path)]
 
 
 def test_fragment_only_is_not_a_broken_link(tmp_path):
     write_public(tmp_path, {"index.html": '<a href="#missing">X</a>'})
     assert classify_href("index.html", "#missing").kind == FRAGMENT_ONLY
-    assert detect(tmp_path) == []
+    assert "broken_internal_link" not in [item["type"] for item in detect(tmp_path)]
 
 
 def test_external_http_is_ignored(tmp_path):

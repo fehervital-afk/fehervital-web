@@ -61,6 +61,21 @@ def test_stable_issue_id():
     assert first == second and first.startswith("wm_")
 
 
+def test_non_fragment_stable_issue_ids_remain_unchanged():
+    cases = [
+        ({"page": "index", "category": "seo", "issue_type": "seo_title", "target": "seo.title"},
+         "wm_1bbcdbef4e50c6f9"),
+        ({"page": "INDEX", "category": "Accessibility", "issue_type": "alt_text",
+          "target": "assets/uploads/X.JPG"}, "wm_9df0050130b49c15"),
+        ({"page": "index.html", "category": "links", "issue_type": "broken_internal_link",
+          "target": "missing.html"}, "wm_d17677eb3a1745e3"),
+        ({"page": "index.html", "category": "security", "issue_type": "unsafe_internal_path",
+          "target": "../x.html"}, "wm_6de750135f7bd3bc"),
+    ]
+    for arguments, expected in cases:
+        assert stable_issue_id(**arguments) == expected
+
+
 def test_same_issue_across_audits_has_same_id():
     assert issue(detected_at="2026-08-20T08:00:00+00:00")["issue_id"] == issue(
         detected_at="2026-08-21T08:00:00+00:00")["issue_id"]

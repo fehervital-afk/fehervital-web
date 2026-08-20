@@ -46,8 +46,11 @@ def _normalize_identity_part(value: Any) -> str:
     return text
 
 
-def stable_issue_id(*, page: str, category: str, issue_type: str, target: str = "") -> str:
+def stable_issue_id(*, page: str, category: str, issue_type: str, target: str = "",
+                    case_sensitive_identity: str | None = None) -> str:
     canonical = "|".join(_normalize_identity_part(value) for value in (page, category, target, issue_type))
+    if case_sensitive_identity is not None:
+        canonical += "|case-sensitive:" + case_sensitive_identity
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
     return f"wm_{digest}"
 
@@ -88,7 +91,8 @@ def create_issue(*, page: str, category: str, issue_type: str, severity: str,
                  detected_by: str = "deterministic", detected_at: str | None = None,
                  suggested_action: dict[str, Any] | None = None,
                  policy_risk: str = "UNKNOWN", status: str = "open",
-                 target: str = "", legacy_severity: str | None = None) -> dict[str, Any]:
+                 target: str = "", legacy_severity: str | None = None,
+                 case_sensitive_identity: str | None = None) -> dict[str, Any]:
     timestamp = detected_at or utcnow()
     safe_evidence = redact(evidence)
     safe_action = redact(suggested_action) if suggested_action is not None else None
@@ -96,7 +100,10 @@ def create_issue(*, page: str, category: str, issue_type: str, severity: str,
     safe_description = redact(description)
     issue = {
         "schema_version": ISSUE_SCHEMA_VERSION,
-        "issue_id": stable_issue_id(page=page, category=category, issue_type=issue_type, target=target),
+        "issue_id": stable_issue_id(
+            page=page, category=category, issue_type=issue_type, target=target,
+            case_sensitive_identity=case_sensitive_identity,
+        ),
         "page": page,
         "category": category,
         "severity": severity,
