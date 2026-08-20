@@ -9,8 +9,11 @@ AI service, evaluates policy, or executes a suggested action.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
+from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import unquote, urlsplit
 
 from webmaster_models import create_issue
 
@@ -24,6 +27,193 @@ SUPPORTED_BLOCK_TYPES = {
 REQUIRED_CONTENT_FIELD_ALLOWLIST = {"title", "hero_title"}
 SEVERITY_MAP = {"low": "info", "medium": "warning", "high": "error"}
 EXTERNAL_URL = re.compile(r"^https?://", re.IGNORECASE)
+
+# Explicit audited contract matching build_public.PUBLIC_HTML. Keeping this
+# local avoids coupling the read-only detector to the mutating build module.
+PUBLIC_HTML_ALLOWLIST = frozenset({
+    "index.html", "preview.html", "biorezonancia.html", "harmonyscan.html",
+    "ai.html", "kapcsolat.html", "adatkezeles.html", "idopontfoglalas.html",
+    "recepcios-ai.html", "egeszsegpont.html", "termekek.html",
+    "oxigenkoncentrator.html", "lagy-lezer.html",
+    "vorosfenyu-hajapolo-sisak.html",
+})
+
+INTERNAL_HTML = "INTERNAL_HTML"
+EXTERNAL_HTTP = "EXTERNAL_HTTP"
+EXTERNAL_HTTPS = "EXTERNAL_HTTPS"
+PROTOCOL_RELATIVE_EXTERNAL = "PROTOCOL_RELATIVE_EXTERNAL"
+MAILTO = "MAILTO"
+TEL = "TEL"
+FRAGMENT_ONLY = "FRAGMENT_ONLY"
+UNSAFE_LOCAL_PATH = "UNSAFE_LOCAL_PATH"
+OTHER_NON_HTML = "OTHER/NON_HTML"
+
+SENSITIVE_LOCAL_PREFIXES = {
+    ".git", ".github", ".env", "_local_admin", "scripts", "tests", "dist",
+    "assets/content",
+}
+
+
+@dataclass(frozen=True)
+class IndexedLink:
+    source: str
+    href: str
+    context: str
+
+
+@dataclass(frozen=True)
+class ClassifiedLink:
+    kind: str
+    target: str | None = None
+    fragment: str = ""
+    reason: str = ""
+
+
+class _LinkParser(HTMLParser):
+    def __init__(self, source: str):
+        super().__init__(convert_charrefs=True)
+        self.source = source
+        self.links: list[IndexedLink] = []
+        self._contexts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        lowered = tag.lower()
+        if lowered in {"nav", "footer"}:
+            self._contexts.append(lowered)
+        if lowered == "a":
+            href = next((value for name, value in attrs if name.lower() == "href"), None)
+            if href is not None:
+                self.links.append(IndexedLink(
+                    source=self.source, href=href,
+                    context=self._contexts[-1] if self._contexts else "content",
+                ))
+
+    def handle_endtag(self, tag: str) -> None:
+        lowered = tag.lower()
+        if lowered in {"nav", "footer"} and self._contexts:
+            self._contexts.pop()
+
+
+def build_html_link_index(project_root: Path) -> dict[str, list[IndexedLink]]:
+    """Parse each existing allowlisted source HTML exactly once."""
+    root = project_root.resolve()
+    index: dict[str, list[IndexedLink]] = {}
+    for relative in sorted(PUBLIC_HTML_ALLOWLIST):
+        source = root / relative
+        if not source.is_file():
+            continue
+        parser = _LinkParser(relative)
+        parser.feed(source.read_text(encoding="utf-8", errors="replace"))
+        parser.close()
+        index[relative] = parser.links
+    return index
+
+
+def classify_href(source: str, href: str) -> ClassifiedLink:
+    """Classify and normalize an href without touching the filesystem."""
+    raw = str(href or "").strip()
+    if not raw:
+        return ClassifiedLink(OTHER_NON_HTML)
+    if raw.startswith("\\\\"):
+        return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="UNC paths are forbidden.")
+    if re.match(r"^[A-Za-z]:[\\/]", raw):
+        return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="Drive paths are forbidden.")
+    if raw.startswith("//"):
+        return ClassifiedLink(PROTOCOL_RELATIVE_EXTERNAL)
+
+    parsed = urlsplit(raw)
+    scheme = parsed.scheme.lower()
+    if scheme == "http":
+        return ClassifiedLink(EXTERNAL_HTTP, fragment=parsed.fragment)
+    if scheme == "https":
+        return ClassifiedLink(EXTERNAL_HTTPS, fragment=parsed.fragment)
+    if scheme == "mailto":
+        return ClassifiedLink(MAILTO)
+    if scheme == "tel":
+        return ClassifiedLink(TEL)
+    if scheme:
+        return ClassifiedLink(OTHER_NON_HTML)
+    if not parsed.path and parsed.fragment:
+        return ClassifiedLink(FRAGMENT_ONLY, fragment=unquote(parsed.fragment))
+
+    normalized_path = unquote(parsed.path).replace("\\", "/")
+    parts = PurePosixPath(normalized_path).parts
+    if ".." in parts:
+        return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="Path traversal is forbidden.")
+    relative_parts = tuple(part for part in parts if part not in {"/", ""})
+    lowered = "/".join(relative_parts).lower()
+    if any(lowered == prefix or lowered.startswith(prefix + "/")
+           for prefix in SENSITIVE_LOCAL_PREFIXES):
+        return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="Sensitive local target is forbidden.")
+    if any(part.startswith(".") for part in relative_parts):
+        return ClassifiedLink(UNSAFE_LOCAL_PATH, reason="Hidden local target is forbidden.")
+
+    if normalized_path in {"", "/"}:
+        target = "index.html"
+    else:
+        source_parent = PurePosixPath(source).parent
+        candidate = PurePosixPath(*relative_parts) if normalized_path.startswith("/") else source_parent.joinpath(*relative_parts)
+        target = candidate.as_posix()
+        if target.startswith("./"):
+            target = target[2:]
+    if not target.lower().endswith(".html"):
+        return ClassifiedLink(OTHER_NON_HTML, target=target, fragment=unquote(parsed.fragment))
+    return ClassifiedLink(INTERNAL_HTML, target=target, fragment=unquote(parsed.fragment))
+
+
+def detect_internal_html_links(*, project_root: Path, detected_at: str) -> list[dict[str, Any]]:
+    """Return deduplicated P1.1 issues for unsafe or broken local HTML links."""
+    root = project_root.resolve()
+    findings: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for source, links in build_html_link_index(root).items():
+        for link in links:
+            classified = classify_href(source, link.href)
+            if classified.kind == UNSAFE_LOCAL_PATH:
+                issue_type = "unsafe_internal_path"
+                normalized_target = unquote(urlsplit(link.href.replace("\\", "/")).path)
+                dedupe_key = (source, normalized_target, issue_type)
+                if dedupe_key in seen:
+                    continue
+                seen.add(dedupe_key)
+                findings.append(create_issue(
+                    page=source, category="links", issue_type=issue_type, severity="error",
+                    title="Nem biztonságos belső útvonal",
+                    description="A hivatkozás tiltott vagy érzékeny helyi útvonalra mutat.",
+                    evidence={"source": source, "original_href": link.href,
+                              "normalized_target": normalized_target,
+                              "context": link.context, "reason": classified.reason},
+                    detected_at=detected_at, suggested_action={
+                        "action": "review_link", "target": source,
+                        "reason": "A tiltott helyi hivatkozást embernek kell felülvizsgálnia.",
+                    }, policy_risk="UNKNOWN", target=normalized_target or "unsafe-local-path",
+                    legacy_severity="high",
+                ))
+                continue
+            if classified.kind != INTERNAL_HTML or not classified.target:
+                continue
+            target = classified.target
+            dedupe_key = (source, target, "broken_internal_link")
+            if dedupe_key in seen:
+                continue
+            if target in PUBLIC_HTML_ALLOWLIST:
+                # Existence is checked only after allowlist validation.
+                if (root / target).is_file():
+                    continue
+            seen.add(dedupe_key)
+            findings.append(create_issue(
+                page=source, category="links", issue_type="broken_internal_link",
+                severity="warning", title="Hibás belső HTML hivatkozás",
+                description=f"A belső HTML cél nem publikus vagy nem létezik: {target}",
+                evidence={"source": source, "original_href": link.href,
+                          "normalized_target": target, "fragment": classified.fragment,
+                          "context": link.context, "expected": "Létező, allowlisted publikus HTML."},
+                detected_at=detected_at, suggested_action={
+                    "action": "review_link", "target": source,
+                    "reason": "A hibás belső hivatkozást embernek kell felülvizsgálnia.",
+                }, policy_risk="UNKNOWN", target=target, legacy_severity="medium",
+            ))
+    return findings
 
 
 def _block_target(block: dict[str, Any], index: int) -> str:
@@ -254,4 +444,5 @@ def detect_issues(cms: Any, config: Any, *, project_root: Path,
             "expected": "Jóváhagyott időpontfoglalási URL."},
             suggested_action={"action": "review_booking_url", "target": "site",
                               "reason": "A kritikus foglalási cél módosítása emberi felülvizsgálatot igényel."})
+    detected.extend(detect_internal_html_links(project_root=project_root, detected_at=detected_at))
     return detected
