@@ -4,7 +4,8 @@ import argparse, json, os, re, subprocess, sys, urllib.request, urllib.error
 from pathlib import Path
 from datetime import datetime, timezone
 from automation_policy import evaluate_plan, write_audit_event
-from webmaster_models import create_issue, merge_issue_lifecycle
+from webmaster_audit import detect_issues
+from webmaster_models import merge_issue_lifecycle
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "assets" / "content"
@@ -131,104 +132,8 @@ def audit_site():
     pages = load(PAGES, {})
     cfg = load(CONFIG, {})
     previous = load(AUDIT, {"items": []})
-    detected = []
     run_at = utcnow()
-    booking_url = cfg.get("booking_url","")
-
-    def add(*, legacy_severity, page, issue_type, category, title, description,
-            evidence, target, suggested_action=None):
-        severity = {"low":"info", "medium":"warning", "high":"error"}[legacy_severity]
-        detected.append(create_issue(
-            page=page, category=category, issue_type=issue_type, severity=severity,
-            title=title, description=description, evidence=evidence,
-            detected_at=run_at, suggested_action=suggested_action,
-            policy_risk="UNKNOWN", target=target, legacy_severity=legacy_severity,
-        ))
-
-    for slug, p in (pages.get("pages") or {}).items():
-        seo = p.get("seo") or {}
-        title = str(seo.get("title") or "").strip()
-        desc = str(seo.get("description") or "").strip()
-        if not title:
-            add(legacy_severity="medium", page=slug, issue_type="seo_title", category="seo",
-                title="Hiányzó SEO cím", description="Hiányzó SEO cím.", target="seo.title",
-                evidence={"target":"seo.title", "field":"title", "current_value":title,
-                          "expected":"Nem üres SEO cím."},
-                suggested_action={"action":"set_seo", "target":slug,
-                                  "reason":"A keresőoldali megjelenéshez SEO cím szükséges."})
-        elif len(title) > 65:
-            add(legacy_severity="low", page=slug, issue_type="seo_title_length", category="seo",
-                title="Túl hosszú SEO cím", description="A SEO cím 65 karakternél hosszabb.", target="seo.title",
-                evidence={"target":"seo.title", "field":"title", "current_value":title,
-                          "expected":"Legfeljebb 65 karakter.", "details":{"length":len(title), "maximum":65}},
-                suggested_action={"action":"set_seo", "target":slug,
-                                  "reason":"A SEO cím hosszát javasolt a megjelenési korláthoz igazítani."})
-        if not desc:
-            add(legacy_severity="medium", page=slug, issue_type="seo_description", category="seo",
-                title="Hiányzó meta leírás", description="Hiányzó meta leírás.", target="seo.description",
-                evidence={"target":"seo.description", "field":"description", "current_value":desc,
-                          "expected":"Nem üres meta leírás."},
-                suggested_action={"action":"set_seo", "target":slug,
-                                  "reason":"A keresőoldali kivonathoz meta leírás szükséges."})
-        elif len(desc) > 165:
-            add(legacy_severity="low", page=slug, issue_type="seo_description_length", category="seo",
-                title="Túl hosszú meta leírás", description="A meta leírás 165 karakternél hosszabb.", target="seo.description",
-                evidence={"target":"seo.description", "field":"description", "current_value":desc,
-                          "expected":"Legfeljebb 165 karakter.", "details":{"length":len(desc), "maximum":165}},
-                suggested_action={"action":"set_seo", "target":slug,
-                                  "reason":"A meta leírás hosszát javasolt a megjelenési korláthoz igazítani."})
-
-        for field_index, f in enumerate(p.get("fields") or []):
-            v = str(f.get("value") or "")
-            if "http://" in v:
-                field_key = str(f.get("key") or f"field_{field_index}")
-                add(legacy_severity="medium", page=slug, issue_type="insecure_link", category="links",
-                    title="Nem biztonságos hivatkozás", description="Nem HTTPS hivatkozás található.",
-                    target=f"fields.{field_key}",
-                    evidence={"target":f"fields.{field_key}", "field":field_key,
-                              "current_value":v, "expected":"HTTPS hivatkozás."},
-                    suggested_action={"action":"set_field", "target":slug,
-                                      "reason":"A HTTP hivatkozást biztonságos HTTPS célra kell ellenőrizni."})
-
-        for block_index, b in enumerate(p.get("blocks") or []):
-            if b.get("type") == "image" and b.get("src") and not b.get("alt"):
-                src = str(b.get("src"))
-                add(legacy_severity="low", page=slug, issue_type="alt_text", category="accessibility",
-                    title="Hiányzó ALT szöveg", description=f"Hiányzó alt szöveg: {src}", target=src,
-                    evidence={"target":src, "field":"alt", "block_index":block_index,
-                              "current_value":b.get("alt"), "expected":"Leíró ALT szöveg."},
-                    suggested_action={"action":"review_alt_text", "target":slug,
-                                      "reason":"A képhez akadálymentes és tartalmi szempontból megfelelő ALT szöveg szükséges."})
-            if b.get("type") == "image" and str(b.get("src","")).startswith("assets/uploads/"):
-                media = ROOT / str(b.get("src"))
-                if not media.exists():
-                    src = str(b.get("src"))
-                    add(legacy_severity="high", page=slug, issue_type="missing_media", category="media",
-                        title="Hiányzó médiafájl", description=f"Hiányzó médiafájl: {src}", target=src,
-                        evidence={"target":src, "field":"src", "block_index":block_index,
-                                  "current_value":src, "expected":"Létező médiatári fájl."},
-                        suggested_action={"action":"review_missing_media", "target":slug,
-                                          "reason":"A hiányzó médiafájlt helyre kell állítani vagy a hivatkozást felül kell vizsgálni."})
-            for key in ("url","link"):
-                u = str(b.get(key) or "")
-                if u.startswith("http://"):
-                    add(legacy_severity="medium", page=slug, issue_type="insecure_link", category="links",
-                        title="Nem biztonságos hivatkozás", description=f"Nem HTTPS hivatkozás: {u}",
-                        target=f"blocks.{block_index}.{key}",
-                        evidence={"target":f"blocks.{block_index}.{key}", "field":key,
-                                  "block_index":block_index, "current_value":u,
-                                  "expected":"HTTPS hivatkozás."},
-                        suggested_action={"action":"review_link", "target":slug,
-                                          "reason":"A HTTP hivatkozás HTTPS megfelelőjét ellenőrizni kell."})
-
-    if not booking_url:
-        add(legacy_severity="high", page="site", issue_type="booking_url", category="booking",
-            title="Hiányzó időpontfoglalási URL", description="Nincs beállítva időpontfoglalási URL.",
-            target="automation.booking_url",
-            evidence={"target":"automation.booking_url", "field":"booking_url",
-                      "current_value":booking_url, "expected":"Jóváhagyott időpontfoglalási URL."},
-            suggested_action={"action":"review_booking_url", "target":"site",
-                              "reason":"A kritikus foglalási cél módosítása emberi felülvizsgálatot igényel."})
+    detected = detect_issues(pages, cfg, project_root=ROOT, detected_at=run_at)
 
     issues = merge_issue_lifecycle(previous.get("items") or [], detected, now=run_at,
                                    previous_detected_at=previous.get("last_run"))
