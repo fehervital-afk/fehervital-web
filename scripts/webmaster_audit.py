@@ -9,6 +9,7 @@ AI service, evaluates policy, or executes a suggested action.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
@@ -21,6 +22,27 @@ SUPPORTED_BLOCK_TYPES = {
     "text", "image", "video", "iconbox", "testimonial", "price",
     "buttons", "divider", "cta", "faq",
 }
+REQUIRED_PUBLIC_HTML_CONTRACT = frozenset({
+    "index.html", "preview.html", "biorezonancia.html", "harmonyscan.html",
+    "ai.html", "kapcsolat.html", "adatkezeles.html", "idopontfoglalas.html",
+    "recepcios-ai.html", "egeszsegpont.html", "termekek.html",
+    "oxigenkoncentrator.html", "lagy-lezer.html",
+    "vorosfenyu-hajapolo-sisak.html",
+})
+STANDARD_CMS_HTML_CONTRACT = REQUIRED_PUBLIC_HTML_CONTRACT - {"index.html"}
+STANDARD_NAVIGATION_CONTRACT = (
+    ("Főoldal", "preview.html"),
+    ("Biorezonancia", "biorezonancia.html"),
+    ("HarmonyScan", "harmonyscan.html"),
+    ("Recepciós AI", "recepcios-ai.html"),
+    ("Fehérvitál AI", "ai.html"),
+    ("Kapcsolat", "kapcsolat.html"),
+    ("Időpontfoglalás", "https://recepciosai.hu/b/fehervital-egeszsegpont"),
+)
+STANDARD_FOOTER_CONTRACT = (
+    ("Kapcsolat", "kapcsolat.html"),
+    ("Adatkezelés", "adatkezeles.html"),
+)
 # Explicit contract proven against assets/js/app.js. This set expresses which
 # CMS pages are intended to have a public mount; it never infers a filename.
 PUBLIC_CMS_PAGE_CONTRACT = frozenset({
@@ -67,6 +89,8 @@ class IndexedLink:
     source: str
     href: str
     context: str
+    label: str = ""
+    position: int = 0
 
 
 @dataclass(frozen=True)
@@ -104,6 +128,8 @@ class _LinkParser(HTMLParser):
         self.cms_pages: list[str] = []
         self.cms_fields: list[CMSFieldTarget] = []
         self._contexts: list[str] = []
+        self._active_link: dict[str, Any] | None = None
+        self._link_positions: dict[str, int] = {}
 
     def _add_anchor(self, value: str | None) -> None:
         if value is None or value == "":
@@ -130,13 +156,24 @@ class _LinkParser(HTMLParser):
             self._add_anchor(attributes.get("name"))
             href = attributes.get("href")
             if href is not None:
-                self.links.append(IndexedLink(
-                    source=self.source, href=href,
-                    context=self._contexts[-1] if self._contexts else "content",
-                ))
+                context = self._contexts[-1] if self._contexts else "content"
+                self._active_link = {"href": href, "context": context, "label": []}
+
+    def handle_data(self, data: str) -> None:
+        if self._active_link is not None:
+            self._active_link["label"].append(data)
 
     def handle_endtag(self, tag: str) -> None:
         lowered = tag.lower()
+        if lowered == "a" and self._active_link is not None:
+            context = self._active_link["context"]
+            position = self._link_positions.get(context, 0) + 1
+            self._link_positions[context] = position
+            self.links.append(IndexedLink(
+                source=self.source, href=self._active_link["href"], context=context,
+                label="".join(self._active_link["label"]), position=position,
+            ))
+            self._active_link = None
         if lowered in {"nav", "footer"} and self._contexts:
             self._contexts.pop()
 
@@ -474,6 +511,189 @@ def detect_cms_html_bindings(cms: Any, *, detected_at: str,
     return findings
 
 
+def _normalized_label(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _contract_link_target(source: str, href: str) -> str:
+    raw = str(href or "").strip()
+    if raw.lower().startswith(("http://", "https://")):
+        return raw
+    classified = classify_href(source, raw)
+    return classified.target if classified.kind == INTERNAL_HTML and classified.target else raw
+
+
+def detect_site_structure(*, project_root: Path, detected_at: str,
+                          documents: dict[str, HTMLDocumentIndex],
+                          public_contract: frozenset[str] = PUBLIC_HTML_ALLOWLIST) -> list[dict[str, Any]]:
+    """Audit explicit required-page, navigation, footer and mount contracts."""
+    findings: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def add(*, page: str, issue_type: str, category: str, severity: str,
+            title: str, description: str, target: str, evidence: dict[str, Any]) -> None:
+        key = (page, target, issue_type)
+        if key in seen:
+            return
+        seen.add(key)
+        findings.append(create_issue(
+            page=page, category=category, issue_type=issue_type, severity=severity,
+            title=title, description=description, evidence=evidence,
+            detected_at=detected_at, suggested_action={
+                "action": "review_site_structure", "target": page,
+                "reason": "A publikus oldalstruktúrát embernek kell felülvizsgálnia.",
+            }, policy_risk="UNKNOWN", target=target,
+            legacy_severity={"info": "low", "warning": "medium", "error": "high"}[severity],
+        ))
+
+    for filename in sorted(REQUIRED_PUBLIC_HTML_CONTRACT):
+        if filename not in public_contract:
+            add(page="site", issue_type="required_page_not_in_build_contract",
+                category="structure", severity="error",
+                title="Kötelező oldal nincs a build contractban",
+                description=f"A kötelező publikus oldal nincs a build contractban: {filename}",
+                target=f"public_contract.{filename}", evidence={
+                    "filename": filename, "required_contract": True,
+                    "build_contract_member": False,
+                    "expected": "A required oldal szerepeljen a public build contractban.",
+                    "evidence_source": "required/build public HTML contract",
+                })
+        if filename in public_contract and filename not in documents:
+            add(page="site", issue_type="required_public_page_missing",
+                category="structure", severity="error",
+                title="Hiányzó kötelező publikus oldal",
+                description=f"A kötelező publikus HTML fájl hiányzik: {filename}",
+                target=f"public_html.{filename}", evidence={
+                    "filename": filename, "required_contract": True,
+                    "build_contract_member": True, "filesystem_exists": False,
+                    "expected": "Létező allowlisted public HTML fájl.",
+                    "evidence_source": "required public HTML contract",
+                })
+
+    for source, document in documents.items():
+        duplicate_mounts = Counter(document.cms_pages)
+        for slug, count in sorted(duplicate_mounts.items()):
+            if count > 1:
+                add(page=source, issue_type="duplicate_cms_page_mount",
+                    category="cms/rendering", severity="error",
+                    title="Duplikált CMS page mount",
+                    description=f"Ugyanaz a CMS page mount többször szerepel a dokumentumban: {slug}",
+                    target=f"{source}#data-cms-page:{slug}", evidence={
+                        "source": source, "cms_page": slug, "occurrence_count": count,
+                        "expected": 1, "evidence_source": source,
+                    })
+
+        if source not in STANDARD_CMS_HTML_CONTRACT:
+            continue
+        nav_links = [link for link in document.links if link.context == "nav"]
+        footer_links = [link for link in document.links if link.context == "footer"]
+        nav_actual = [
+            (_normalized_label(link.label), _contract_link_target(source, link.href), link)
+            for link in nav_links
+        ]
+        nav_targets = {target for _, target, _ in nav_actual}
+        nav_labels = {label for label, _, _ in nav_actual}
+        expected_targets = {target for _, target in STANDARD_NAVIGATION_CONTRACT}
+        expected_labels = {label for label, _ in STANDARD_NAVIGATION_CONTRACT}
+
+        for expected_position, (expected_label, expected_target) in enumerate(STANDARD_NAVIGATION_CONTRACT, start=1):
+            target_matches = [(label, link) for label, target, link in nav_actual if target == expected_target]
+            if not target_matches:
+                label_matches = [(target, link) for label, target, link in nav_actual if label == expected_label]
+                if label_matches:
+                    actual_target, link = label_matches[0]
+                    add(page=source, issue_type="navigation_target_mismatch", category="navigation",
+                        severity="error", title="Eltérő navigációs cél",
+                        description=f"A navigációs label nem a várt célra mutat: {expected_label}",
+                        target=f"{source}#nav-label:{expected_label}", evidence={
+                            "source": source, "context": "nav", "actual_href": link.href,
+                            "normalized_target": actual_target, "expected_target": expected_target,
+                            "label": expected_label, "expected_position": expected_position,
+                            "evidence_source": source,
+                        })
+                else:
+                    add(page=source, issue_type="required_navigation_link_missing", category="navigation",
+                        severity="warning", title="Hiányzó kötelező navigációs link",
+                        description=f"A navigációból hiányzik: {expected_label}",
+                        target=f"{source}#nav:{expected_target}", evidence={
+                            "source": source, "context": "nav", "expected_label": expected_label,
+                            "expected_target": expected_target, "expected_position": expected_position,
+                            "evidence_source": source,
+                        })
+            elif all(label != expected_label for label, _ in target_matches):
+                actual_label, link = target_matches[0]
+                add(page=source, issue_type="navigation_label_mismatch", category="navigation",
+                    severity="warning", title="Eltérő navigációs label",
+                    description=f"A navigációs cél labelje eltér a contracttól: {expected_target}",
+                    target=f"{source}#nav:{expected_target}", evidence={
+                        "source": source, "context": "nav", "original_href": link.href,
+                        "normalized_target": expected_target, "actual_label": actual_label,
+                        "expected_label": expected_label, "evidence_source": source,
+                    })
+
+        for label, target, link in nav_actual:
+            if target not in expected_targets and label not in expected_labels:
+                add(page=source, issue_type="unexpected_navigation_link", category="navigation",
+                    severity="warning", title="Váratlan navigációs link",
+                    description=f"A standard navigáció ismeretlen linket tartalmaz: {target}",
+                    target=f"{source}#nav:{target}", evidence={
+                        "source": source, "context": "nav", "original_href": link.href,
+                        "normalized_target": target, "actual_label": label,
+                        "position": link.position, "evidence_source": source,
+                    })
+
+        recognized_nav_order = [target for _, target, _ in nav_actual if target in expected_targets]
+        expected_present_order = [target for _, target in STANDARD_NAVIGATION_CONTRACT if target in nav_targets]
+        if recognized_nav_order != expected_present_order:
+            add(page=source, issue_type="navigation_target_mismatch", category="navigation",
+                severity="warning", title="Eltérő navigációs sorrend",
+                description="A navigációs célok sorrendje eltér az explicit contracttól.",
+                target=f"{source}#nav-order", evidence={
+                    "source": source, "context": "nav", "actual_order": recognized_nav_order,
+                    "expected_order": expected_present_order, "evidence_source": source,
+                })
+
+        footer_actual = [
+            (_normalized_label(link.label), _contract_link_target(source, link.href), link)
+            for link in footer_links
+        ]
+        for expected_position, (expected_label, expected_target) in enumerate(STANDARD_FOOTER_CONTRACT, start=1):
+            target_matches = [(label, link) for label, target, link in footer_actual if target == expected_target]
+            if not target_matches:
+                label_matches = [(target, link) for label, target, link in footer_actual if label == expected_label]
+                if label_matches:
+                    actual_target, link = label_matches[0]
+                    add(page=source, issue_type="footer_target_mismatch", category="footer",
+                        severity="warning", title="Eltérő footer cél",
+                        description=f"A footer label nem a várt célra mutat: {expected_label}",
+                        target=f"{source}#footer-label:{expected_label}", evidence={
+                            "source": source, "context": "footer", "actual_href": link.href,
+                            "normalized_target": actual_target, "expected_target": expected_target,
+                            "label": expected_label, "expected_position": expected_position,
+                            "evidence_source": source,
+                        })
+                else:
+                    add(page=source, issue_type="required_footer_link_missing", category="footer",
+                        severity="warning", title="Hiányzó kötelező footer link",
+                        description=f"A footerből hiányzik: {expected_label}",
+                        target=f"{source}#footer:{expected_target}", evidence={
+                            "source": source, "context": "footer", "expected_label": expected_label,
+                            "expected_target": expected_target, "expected_position": expected_position,
+                            "evidence_source": source,
+                        })
+            elif all(label != expected_label for label, _ in target_matches):
+                actual_label, link = target_matches[0]
+                add(page=source, issue_type="footer_label_mismatch", category="footer",
+                    severity="warning", title="Eltérő footer label",
+                    description=f"A footer cél labelje eltér a contracttól: {expected_target}",
+                    target=f"{source}#footer:{expected_target}", evidence={
+                        "source": source, "context": "footer", "original_href": link.href,
+                        "normalized_target": expected_target, "actual_label": actual_label,
+                        "expected_label": expected_label, "evidence_source": source,
+                    })
+    return findings
+
+
 def detect_issues(cms: Any, config: Any, *, project_root: Path,
                   detected_at: str, cms_source_path: Path | None = None) -> list[dict[str, Any]]:
     """Return P1.1 issues without mutating inputs or project content."""
@@ -681,6 +901,10 @@ def detect_issues(cms: Any, config: Any, *, project_root: Path,
     canonical_cms = (project_root.resolve() / "assets" / "content" / "pages.json")
     if cms_source_path is None or cms_source_path.resolve() == canonical_cms:
         detected.extend(detect_cms_html_bindings(cms, detected_at=detected_at, documents=documents))
+    if cms_source_path is not None and cms_source_path.resolve() == canonical_cms:
+        detected.extend(detect_site_structure(
+            project_root=project_root, detected_at=detected_at, documents=documents,
+        ))
     detected.extend(detect_internal_html_links(
         project_root=project_root, detected_at=detected_at, documents=documents,
     ))
