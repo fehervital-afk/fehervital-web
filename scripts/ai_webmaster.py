@@ -133,7 +133,9 @@ def audit_site():
     cfg = load(CONFIG, {})
     previous = load(AUDIT, {"items": []})
     run_at = utcnow()
-    detected = detect_issues(pages, cfg, project_root=ROOT, detected_at=run_at)
+    detected = detect_issues(
+        pages, cfg, project_root=ROOT, detected_at=run_at, cms_source_path=PAGES,
+    )
 
     issues = merge_issue_lifecycle(previous.get("items") or [], detected, now=run_at,
                                    previous_detected_at=previous.get("last_run"))

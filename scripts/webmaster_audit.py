@@ -21,6 +21,14 @@ SUPPORTED_BLOCK_TYPES = {
     "text", "image", "video", "iconbox", "testimonial", "price",
     "buttons", "divider", "cta", "faq",
 }
+# Explicit contract proven against assets/js/app.js. This set expresses which
+# CMS pages are intended to have a public mount; it never infers a filename.
+PUBLIC_CMS_PAGE_CONTRACT = frozenset({
+    "index", "biorezonancia", "harmonyscan", "ai", "kapcsolat",
+    "recepcios_ai", "egeszsegpont", "termekek", "oxigenkoncentrator",
+    "lagy_lezer", "vorosfenyu_hajapolo_sisak", "adatkezeles",
+    "idopontfoglalas",
+})
 # Audit-only allowlist. Only fields proven to bind to an H1 in the current
 # renderer may appear here; unknown or optional empty fields must not produce a
 # required_content_empty issue.
@@ -61,12 +69,21 @@ class IndexedLink:
     context: str
 
 
+@dataclass(frozen=True)
+class CMSFieldTarget:
+    key: str
+    tag: str
+    context: str
+
+
 @dataclass
 class HTMLDocumentIndex:
     source: str
     links: list[IndexedLink]
     anchors: set[str]
     anchor_counts: dict[str, int]
+    cms_pages: tuple[str, ...]
+    cms_fields: tuple[CMSFieldTarget, ...]
 
 
 @dataclass(frozen=True)
@@ -84,6 +101,8 @@ class _LinkParser(HTMLParser):
         self.links: list[IndexedLink] = []
         self.anchors: set[str] = set()
         self.anchor_counts: dict[str, int] = {}
+        self.cms_pages: list[str] = []
+        self.cms_fields: list[CMSFieldTarget] = []
         self._contexts: list[str] = []
 
     def _add_anchor(self, value: str | None) -> None:
@@ -98,6 +117,15 @@ class _LinkParser(HTMLParser):
         if lowered in {"nav", "footer"}:
             self._contexts.append(lowered)
         self._add_anchor(attributes.get("id"))
+        cms_page = attributes.get("data-cms-page")
+        if cms_page is not None:
+            self.cms_pages.append(cms_page)
+        cms_field = attributes.get("data-cms-field")
+        if cms_field is not None:
+            self.cms_fields.append(CMSFieldTarget(
+                key=cms_field, tag=lowered,
+                context=self._contexts[-1] if self._contexts else "content",
+            ))
         if lowered == "a":
             self._add_anchor(attributes.get("name"))
             href = attributes.get("href")
@@ -127,6 +155,7 @@ def build_html_link_index(project_root: Path) -> dict[str, HTMLDocumentIndex]:
         index[relative] = HTMLDocumentIndex(
             source=relative, links=parser.links, anchors=parser.anchors,
             anchor_counts=parser.anchor_counts,
+            cms_pages=tuple(parser.cms_pages), cms_fields=tuple(parser.cms_fields),
         )
     return index
 
@@ -195,12 +224,13 @@ def classify_href(source: str, href: str) -> ClassifiedLink:
     return ClassifiedLink(INTERNAL_HTML, target=target, fragment=normalize_fragment(parsed.fragment))
 
 
-def detect_internal_html_links(*, project_root: Path, detected_at: str) -> list[dict[str, Any]]:
+def detect_internal_html_links(*, project_root: Path, detected_at: str,
+                               documents: dict[str, HTMLDocumentIndex] | None = None) -> list[dict[str, Any]]:
     """Return deduplicated P1.1 issues for unsafe or broken local HTML links."""
     root = project_root.resolve()
     findings: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
-    documents = build_html_link_index(root)
+    documents = documents if documents is not None else build_html_link_index(root)
     for source, document in documents.items():
         for link in document.links:
             classified = classify_href(source, link.href)
@@ -304,10 +334,151 @@ def _safe_upload_path(project_root: Path, value: str) -> tuple[Path | None, str 
     return candidate, None
 
 
+def detect_cms_html_bindings(cms: Any, *, detected_at: str,
+                             documents: dict[str, HTMLDocumentIndex]) -> list[dict[str, Any]]:
+    """Compare CMS data with explicit public HTML mounts without filesystem inference."""
+    if not isinstance(cms, dict) or not isinstance(cms.get("pages"), dict):
+        return []
+    pages = cms["pages"]
+    findings: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def add(*, page: str, issue_type: str, category: str, severity: str,
+            title: str, description: str, target: str, evidence: dict[str, Any]) -> None:
+        key = (page, target, issue_type)
+        if key in seen:
+            return
+        seen.add(key)
+        findings.append(create_issue(
+            page=page, category=category, issue_type=issue_type, severity=severity,
+            title=title, description=description, evidence=evidence,
+            detected_at=detected_at, suggested_action={
+                "action": "review_cms_binding", "target": page,
+                "reason": "A CMS és a publikus renderer kapcsolatát embernek kell felülvizsgálnia.",
+            }, policy_risk="UNKNOWN", target=target,
+            legacy_severity={"warning": "medium", "error": "high"}[severity],
+        ))
+
+    mounts: dict[str, list[tuple[str, HTMLDocumentIndex]]] = {}
+    for html_name, document in documents.items():
+        if document.cms_fields and not document.cms_pages:
+            add(page=html_name, issue_type="renderer_target_missing", category="cms/rendering",
+                severity="error", title="Hiányzó CMS renderer target",
+                description="A HTML CMS field targeteket tartalmaz, de nincs data-cms-page mount.",
+                target=f"{html_name}#data-cms-page",
+                evidence={"public_html": html_name, "expected": "data-cms-page mount",
+                          "evidence_source": html_name})
+        for slug in document.cms_pages:
+            mounts.setdefault(slug, []).append((html_name, document))
+            if slug not in pages:
+                add(page=html_name, issue_type="public_html_without_expected_cms_page",
+                    category="cms/rendering", severity="error",
+                    title="Ismeretlen CMS page mount",
+                    description=f"A publikus HTML nem létező CMS page-et mountol: {slug}",
+                    target=f"{html_name}#data-cms-page:{slug}",
+                    evidence={"cms_page": slug, "public_html": html_name,
+                              "actual": slug, "expected": "Létező CMS page",
+                              "evidence_source": html_name})
+
+    for raw_slug, page_data in pages.items():
+        slug = str(raw_slug)
+        page_mounts = mounts.get(slug, [])
+        if slug in PUBLIC_CMS_PAGE_CONTRACT and not page_mounts:
+            add(page=slug, issue_type="cms_page_without_public_html", category="cms/rendering",
+                severity="warning", title="CMS page publikus binding nélkül",
+                description=f"A várt CMS page-hez nincs explicit publikus HTML mount: {slug}",
+                target=f"pages.{slug}.html_binding",
+                evidence={"cms_page": slug, "cms_source_path": f"pages.{slug}",
+                          "expected": "Allowlisted HTML data-cms-page mount",
+                          "evidence_source": "renderer contract"})
+            if isinstance(page_data, dict) and isinstance(page_data.get("blocks"), list) and page_data["blocks"]:
+                add(page=slug, issue_type="block_target_missing", category="cms/rendering",
+                    severity="error", title="Hiányzó block renderer target",
+                    description="A CMS page blokkokat tartalmaz, de nincs explicit publikus mount.",
+                    target=f"pages.{slug}.blocks.mount",
+                    evidence={"cms_page": slug, "cms_source_path": f"pages.{slug}.blocks",
+                              "expected": "data-cms-page block mount",
+                              "evidence_source": "renderer contract"})
+        if not isinstance(page_data, dict):
+            continue
+        blocks = page_data.get("blocks")
+        if isinstance(blocks, list):
+            for block_index, block in enumerate(blocks):
+                if not isinstance(block, dict):
+                    continue
+                if block.get("visible") is False:
+                    continue
+                block_type = str(block.get("type") or "").strip().lower()
+                target = _block_target(block, block_index)
+                if block_type and block_type not in SUPPORTED_BLOCK_TYPES:
+                    add(page=slug, issue_type="unsupported_block_type", category="cms/rendering",
+                        severity="error", title="Nem támogatott CMS block type",
+                        description=f"A publikus renderer nem támogatja ezt a block type-ot: {block_type}",
+                        target=target, evidence={"cms_page": slug, "block_target": target,
+                                                "actual_type": block.get("type"),
+                                                "expected": sorted(SUPPORTED_BLOCK_TYPES),
+                                                "evidence_source": "assets/js/app.js"})
+                if block_type == "video" and not str(block.get("src") or "").strip() and str(block.get("url") or "").strip():
+                    add(page=slug, issue_type="video_renderer_source_mismatch", category="rendering",
+                        severity="warning", title="Video source renderer eltérés",
+                        description="A media audit elfogadja a video.url mezőt, de a publikus renderer csak video.src értéket használ.",
+                        target=f"{target}.url", evidence={"cms_page": slug, "block_target": target,
+                            "src_current_value": block.get("src"), "url_current_value": block.get("url"),
+                            "renderer_expectation": "Nem üres block.src",
+                            "evidence_source": "assets/js/app.js"})
+        if not page_mounts:
+            continue
+        fields = page_data.get("fields")
+        if isinstance(fields, list):
+            cms_fields = {str(item.get("key") or ""): item for item in fields if isinstance(item, dict)}
+            for html_name, document in page_mounts:
+                html_fields: dict[str, list[CMSFieldTarget]] = {}
+                for field in document.cms_fields:
+                    html_fields.setdefault(field.key, []).append(field)
+                for key, field in cms_fields.items():
+                    if key and key not in html_fields:
+                        add(page=slug, issue_type="cms_field_without_renderer_binding",
+                            category="cms/rendering", severity="warning",
+                            title="CMS field renderer binding nélkül",
+                            description=f"A CMS fieldhez nincs data-cms-field target: {key}",
+                            target=f"pages.{slug}.fields.{key}",
+                            evidence={"cms_page": slug, "public_html": html_name,
+                                      "cms_source_path": f"pages.{slug}.fields.{key}",
+                                      "field": key, "expected": f'data-cms-field="{key}"',
+                                      "evidence_source": html_name})
+                for key, targets in html_fields.items():
+                    if key not in cms_fields:
+                        required = key in REQUIRED_CONTENT_FIELD_ALLOWLIST and any(t.tag == "h1" for t in targets)
+                        add(page=slug, issue_type="renderer_binding_missing_field",
+                            category="cms/rendering", severity="error" if required else "warning",
+                            title="Renderer binding CMS field nélkül",
+                            description=f"A HTML targethez nincs CMS field: {key}",
+                            target=f"{html_name}#data-cms-field:{key}",
+                            evidence={"cms_page": slug, "public_html": html_name, "field": key,
+                                      "dom_tags": sorted({t.tag for t in targets}),
+                                      "required": required, "expected": f"pages.{slug}.fields.{key}",
+                                      "evidence_source": html_name})
+                    else:
+                        value = str(cms_fields[key].get("value") or "")
+                        required = key in REQUIRED_CONTENT_FIELD_ALLOWLIST and any(t.tag == "h1" for t in targets)
+                        if required and not value.strip():
+                            add(page=slug, issue_type="required_binding_empty", category="cms/rendering",
+                                severity="error", title="Kötelező H1 binding üres",
+                                description=f"A kötelező H1 CMS binding üres: {key}",
+                                target=f"pages.{slug}.fields.{key}",
+                                evidence={"cms_page": slug, "public_html": html_name,
+                                          "cms_source_path": f"pages.{slug}.fields.{key}",
+                                          "field": key, "dom_tag": "h1", "current_value": value,
+                                          "expected": "Nem üres H1 binding",
+                                          "evidence_source": html_name})
+    return findings
+
+
 def detect_issues(cms: Any, config: Any, *, project_root: Path,
-                  detected_at: str) -> list[dict[str, Any]]:
+                  detected_at: str, cms_source_path: Path | None = None) -> list[dict[str, Any]]:
     """Return P1.1 issues without mutating inputs or project content."""
     detected: list[dict[str, Any]] = []
+    documents = build_html_link_index(project_root)
 
     def add(*, legacy_severity: str, page: str, issue_type: str, category: str,
             title: str, description: str, evidence: dict[str, Any], target: str,
@@ -396,7 +567,7 @@ def detect_issues(cms: Any, config: Any, *, project_root: Path,
                 continue
             key = str(field.get("key") or f"field_{field_index}")
             value = str(field.get("value") or "")
-            if key in REQUIRED_CONTENT_FIELD_ALLOWLIST and not value.strip():
+            if not documents and key in REQUIRED_CONTENT_FIELD_ALLOWLIST and not value.strip():
                 add(legacy_severity="medium", page=slug, issue_type="required_content_empty",
                     category="content", title="Kötelező címsor üres",
                     description=f"A kötelező {key} CMS mező üres.", target=f"fields.{key}",
@@ -428,12 +599,14 @@ def detect_issues(cms: Any, config: Any, *, project_root: Path,
                 continue
             target = _block_target(block, block_index)
             block_type = str(block.get("type") or "").strip().lower()
-            if not block_type or block_type not in SUPPORTED_BLOCK_TYPES:
+            if not block_type:
                 add(legacy_severity="high", page=slug, issue_type="malformed_block_type",
                     category="technical", title="Hiányzó vagy ismeretlen blokktípus",
-                    description="A CMS blokk típusa hiányzik vagy nem támogatott.", target=target,
+                    description="A CMS blokk típusa hiányzik.", target=target,
                     evidence={"target": target, "block_index": block_index,
                               "actual_type": block.get("type"), "expected": sorted(SUPPORTED_BLOCK_TYPES)})
+                continue
+            if block_type not in SUPPORTED_BLOCK_TYPES:
                 continue
             for collection_key in ({"faq": "items", "buttons": "buttons"}.get(block_type),):
                 if collection_key and not isinstance(block.get(collection_key), list):
@@ -505,5 +678,10 @@ def detect_issues(cms: Any, config: Any, *, project_root: Path,
             "expected": "Jóváhagyott időpontfoglalási URL."},
             suggested_action={"action": "review_booking_url", "target": "site",
                               "reason": "A kritikus foglalási cél módosítása emberi felülvizsgálatot igényel."})
-    detected.extend(detect_internal_html_links(project_root=project_root, detected_at=detected_at))
+    canonical_cms = (project_root.resolve() / "assets" / "content" / "pages.json")
+    if cms_source_path is None or cms_source_path.resolve() == canonical_cms:
+        detected.extend(detect_cms_html_bindings(cms, detected_at=detected_at, documents=documents))
+    detected.extend(detect_internal_html_links(
+        project_root=project_root, detected_at=detected_at, documents=documents,
+    ))
     return detected
